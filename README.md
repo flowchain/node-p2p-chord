@@ -10,3 +10,4 @@ flowchain-chord: An light-weight Node.js implementation of Chord peer-to-peer pr
 
 ## License
 
+The MIT License (MIT)
