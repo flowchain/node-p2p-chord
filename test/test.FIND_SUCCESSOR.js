@@ -3,7 +3,7 @@ var message = { type: 2, id: '2e9c3bbeb0827d26dd121d014fa34e73' };
 
 var util = require('util');
 var WebSocketClient = require('websocket').client;
-var hash = require('../hash');
+var hash = require('../libs/hash');
 var uuid = require('uuid');
 
 var client = new WebSocketClient();

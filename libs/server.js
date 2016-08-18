@@ -31,7 +31,7 @@
 /**
  * Server Framework
  */
-var Server = require('./libs');
+var Server = require('./index');
 
 /**
  * Chord Node Class
