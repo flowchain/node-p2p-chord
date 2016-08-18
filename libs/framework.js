@@ -1,8 +1,10 @@
 /**
  *
- * WoT.City Open Source Project
+ * The MIT License (MIT)
+ *
+ * https://github.com/flowchain
  * 
- * Copyright 2015 Jollen
+ * Copyright (c) 2016 Jollen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +26,7 @@
  *
  */
 
-"use strict";
+'use strict';
 
 /**
  * Expose `Automation` class. (NodeJS)
