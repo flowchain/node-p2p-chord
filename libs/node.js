@@ -50,7 +50,10 @@ function Node(id, server) {
     this.server = server;
 
     this.predecessor = null;
-    this.successor = null;
+    this.successor = { 
+        address: '127.0.0.1', 
+        port: 8000 
+    };
 
     // Finger table
     this.fingers = [];
@@ -58,11 +61,11 @@ function Node(id, server) {
 
     // Stabilization
     setInterval(function Stabilize() {
-        this.send(this.successor, { type: Chord.FIND_PREDECESSOR });
+        this.send(this.successor, { type: Chord.FIND_PREDECESSOR, id: this.id });
     }.bind(this), 3000);
 
     setInterval(function Notify() {
-        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
+        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
     }.bind(this), 3000);
 };
 

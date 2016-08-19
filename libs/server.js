@@ -66,7 +66,7 @@ var deserialize = JSON.parse;
  * WebSocket URL Router
  */
 var wsHandlers = {
-   "/object/([A-Za-z0-9-]+)": RequestHandlers.receive,   
+   "/node/([A-Za-z0-9-]+)/send": RequestHandlers.receive,   
 };
 
 /*
@@ -103,13 +103,15 @@ Server.prototype.onData = function(payload) {
     this._options.onmessage(payload);
   }
 
-  // console.log(packet)
-  //
-  //  { message: { type: 2, id: '2e9c3bbeb0827d26dd121d014fa34e73' },
-  //    from: 
-  //     { address: '127.0.0.1',
-  //       port: 8000,
-  //       id: '2e9c3bbeb0827d26dd121d014fa34e73' } }
+  /* 
+   * Format of 'packet'.
+   *
+   *  { message: { type: 2, id: '2e9c3bbeb0827d26dd121d014fa34e73' },
+   *    from: 
+   *     { address: '127.0.0.1',
+   *       port: 8000,
+   *       id: '2e9c3bbeb0827d26dd121d014fa34e73' } }
+   */
 
   // Get last node ID
   var to = this.last_node;
@@ -121,7 +123,6 @@ Server.prototype.onData = function(payload) {
   }
 
   if (to) {
-    console.log('deliver')
     to.receive(packet.from, packet.message);
   }
 };
@@ -191,7 +192,7 @@ Server.prototype.sendChordMessage = function(to, message) {
     }
   });
 
-  var uri = util.format('ws://%s:%s/object/%s', to.address, to.port, message.id)
+  var uri = util.format('ws://%s:%s/node/%s/send', to.address, to.port, message.id)
   client.connect(uri, '');
 };
 
