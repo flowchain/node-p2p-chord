@@ -39,6 +39,11 @@ var Server = require('./index');
 var Node = require('./node');
 
 /**
+ * Chord Utils
+ */
+var ChordUtils = require('./utils');
+
+/**
  * Server Modules
  */
 var Framework = Server.Framework
@@ -51,7 +56,6 @@ var Framework = Server.Framework
  */
 var merge = require('utils-merge');
 var uuid = require('uuid');
-var hash = require('./hash');
 var util = require('util');
 var WebSocketClient = require('websocket').client;
 
@@ -80,7 +84,7 @@ var Server = function () {
   this.last_node_send = null;
 
   // Create a unique ID for the new node
-  var id = hash(uuid.v4());
+  var id = ChordUtils.hash(uuid.v4());
 
   // Create a new Chord node with the ID
   var node = new Node(id, this);

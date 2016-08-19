@@ -28,16 +28,27 @@
 
 'use strict';
 
-/*
- * Export 'Node' class
- */
+var Utils = {
+	hash: function(text) {
+		var data = (+new Date() + Math.floor(Math.random()*999999) + text);
+		var Crypto = require('crypto');
+		var id = Crypto.createHash('md5', 'a++33...').update(data).digest('hex');
+
+		return id;
+	},
+
+	isInRange: function(key, left, right) {
+		if (right == left) {
+			return key == right;
+		}
+
+		if (left < right) {
+			return (key >= left && key <= right);
+		} else {
+			return (key >= right && key <= left);
+		}
+	}
+};
+
 if (typeof(module) != "undefined" && typeof(exports) != "undefined")
-  module.exports = hash;
-
-function hash(text) {
-	var data = (+new Date() + Math.floor(Math.random()*999999) + text);
-	var Crypto = require('crypto');
-	var id = Crypto.createHash('md5', 'a++33...').update(data).digest('hex');
-
-	return id;
-}
+  module.exports = Utils;

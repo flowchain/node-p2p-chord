@@ -167,7 +167,7 @@ WebsocketBroker.prototype.start = function(route, handlers) {
     var connection = request.accept('', request.origin);
 
     //console.log("[2]: onWsRequest");
-    console.log("[3]: resource: " + request.resourceURL.path);
+    console.log("[3]: resource: " + request.resource);
 
     // put worker object into connection
     connection.worker = cluster.worker;

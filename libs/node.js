@@ -28,7 +28,7 @@
 
 'use strict';
 
-var hash = require('./hash');
+var ChordUtils = require('./utils');
 
 /*
  * Export 'Node' class
@@ -79,7 +79,7 @@ Node.prototype.send = function(key, message, to) {
         return this.server.sendChordMessage(to, message);
     }
 
-    var id = hash(key);
+    var id = ChordUtils.hash(key);
 
     this.server.sendChordMessage(to, {
         type: Chord.MESSAGE,
@@ -105,7 +105,14 @@ Node.prototype.join = function(remote) {
     return remote;
 };
 
-Node.prototype.receive = function (from, message) {
+/*
+ * Search the local table for the highest predecessor of id
+ */
+Node.prototype.closest_preceding_node = function(id) {
+
+};
+
+Node.prototype.receive = function(from, message) {
     switch (message.type) {
         case Chord.NOTIFY_PREDECESSOR:
             if (this.predecessor === null) {
@@ -125,9 +132,24 @@ Node.prototype.receive = function (from, message) {
             break;  
 
         case Chord.FIND_SUCCESSOR:
-            message.type = Chord.FOUND_SUCCESSOR;
-            this.send(from, message, this.successor);
-            console.log('[receive] FOUND_SUCCESSOR');
+            this.predecessor = null;
+
+            // Yes, that should be a closing square bracket to match the opening parenthesis.
+            // It is a half closed interval.
+            if (ChordUtils.isInRange(message.id, this.id, this.successor.id)) {
+                message.type = Chord.FOUND_SUCCESSOR;
+                this.send(from, message, this.successor);
+
+                console.log('[Dispatcher] FOUND_SUCCESSOR');
+
+            // forward the query around the circle
+            } else {
+                var n0 = this.closest_preceding_node(message.id);
+                send(n0.id, message, from);
+
+                console.log('[Dispatcher] FOUND_SUCCESSOR forward');
+            }
+
             break;
 
         case Chord.MESSAGE:
