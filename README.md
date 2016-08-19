@@ -6,9 +6,27 @@ flowchain-chord: An light-weight Node.js implementation of Chord peer-to-peer pr
 
 ## Quickstart
 
-To create a node and connect to a subsequent node.
+To create a node and connect to a subsequent node. Add ```join``` as the existing server to connect to.
 
 ```
+var server = require('./libs/server');
+
+/**
+ * Chord network.
+ */
+var onmessage = function(payload) {
+};
+
+/**
+ * Join an existing node.
+ */
+server.start({
+	onmessage: onmessage,
+	join: { 
+		address: '127.0.0.1', 
+		port: 8001
+	}	
+});
 ```
 
 To create a new node.
