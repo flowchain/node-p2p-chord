@@ -112,7 +112,7 @@ Node.prototype.closest_preceding_node = function(id) {
 
 };
 
-Node.prototype.receive = function(from, message) {
+Node.prototype.dispatch = function(from, message) {
     switch (message.type) {
         case Chord.NOTIFY_PREDECESSOR:
             if (this.predecessor === null) {
@@ -132,8 +132,6 @@ Node.prototype.receive = function(from, message) {
             break;  
 
         case Chord.FIND_SUCCESSOR:
-            this.predecessor = null;
-
             // Yes, that should be a closing square bracket to match the opening parenthesis.
             // It is a half closed interval.
             if (ChordUtils.isInRange(message.id, this.id, this.successor.id)) {

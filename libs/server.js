@@ -127,7 +127,7 @@ Server.prototype.onData = function(payload) {
   }
 
   if (to) {
-    to.receive(packet.from, packet.message);
+    to.dispatch(packet.from, packet.message);
   }
 };
 
