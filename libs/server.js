@@ -52,6 +52,8 @@ var Framework = Server.Framework
 var merge = require('utils-merge');
 var uuid = require('uuid');
 var hash = require('./hash');
+var util = require('util');
+var WebSocketClient = require('websocket').client;
 
 /*
  * Chord utils
@@ -171,8 +173,26 @@ Server.prototype.start = function(options) {
  * @api public
  */
 Server.prototype.sendChordMessage = function(to, message) {
-  console.log('send to', to);
-  console.log('message', message);
+  var client = new WebSocketClient();
+
+  client.on('connect', function(connection) {
+    var payload = {
+      /* to: <forward-to-node-by-id> */
+      message: message,
+      from: {
+        address: '127.0.0.1',
+        port: 8000,
+        id: message.id
+      }   
+    };
+
+    if (connection.connected) {
+        connection.sendUTF(JSON.stringify(payload));
+    }
+  });
+
+  var uri = util.format('ws://%s:%s/object/%s', to.address, to.port, message.id)
+  client.connect(uri, '');
 };
 
 /**
