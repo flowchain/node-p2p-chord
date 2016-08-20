@@ -56,6 +56,7 @@ There are existing Node.js Chord implementations. *flowchain-chord* is inspired 
 
 * [shigasumi/chord-node-js](https://github.com/shigasumi/chord-node-js)
 * [optimizely/chord](https://github.com/optimizely/chord)
+* [tsujio/webrtc-chord](https://github.com/tsujio/webrtc-chord)
 
 ## License
 

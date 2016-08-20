@@ -59,9 +59,15 @@ function Node(id, server) {
     this.fingers = [];
     this.next_finger = 0;
 
-    // Stabilization
+    // Stabilization - fix fingers
     setInterval(function Stabilize() {
-        this.send(this.successor, { type: Chord.FIND_PREDECESSOR, id: this.id });
+        this.next_finger = this.next_finger + 1;
+
+        this.send(this.successor, { 
+            type: Chord.FIND_PREDECESSOR, 
+            id: ChordUtils.nextFinger(this.id, this.next_finger),
+            next: this.next_finger
+        });
     }.bind(this), 3000);
 
     setInterval(function Notify() {

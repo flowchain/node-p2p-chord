@@ -47,7 +47,18 @@ var Utils = {
 		} else {
 			return (key >= right && key <= left);
 		}
-	}
+	},
+
+	nextFinger: function(n, next) {
+	    var result = 1;
+
+	    while (next >= 0) {
+	    	result = result * 2;
+	    	next--;
+	    }
+
+	    return (n + result);
+	}	
 };
 
 if (typeof(module) != "undefined" && typeof(exports) != "undefined")
