@@ -30,7 +30,7 @@
 
 var Utils = {
 	hash: function(text) {
-		var data = (+new Date() + Math.floor(Math.random()*999999) + text);
+		var data = ('CHORD..++' + text + new Date() + Math.floor(Math.random()*999999));
 		var Crypto = require('crypto');
 		var id = Crypto.createHash('md5', 'a++33...').update(data).digest('hex');
 

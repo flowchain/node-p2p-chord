@@ -100,16 +100,30 @@ Node.prototype.join = function(remote) {
     // Initialize node's predecessor
     this.predecessor = null;
 
+    // Dispatching
     this.send(remote, message);
 
     return remote;
 };
 
 /*
- * Search the local table for the highest predecessor of id
+ * Return closet finger proceding id
  */
-Node.prototype.closest_preceding_node = function(id) {
+Node.prototype.closet_finger_preceding = function(id) {
+    /*
+     * for i = m downto 1
+     *   if (isInRange(finger[i].node, n, id))
+     *      return finger[i].node;
+     * return n;
+     */
 
+    for (var i = this.fingers.length - 1; i >= 0; --i) {
+        if (ChordUtils.isInRange(fingers[i].id, this.id, id)) {
+            return this.fingers[i];
+        }
+    }
+
+    return this.id;   
 };
 
 Node.prototype.dispatch = function(from, message) {
@@ -142,8 +156,8 @@ Node.prototype.dispatch = function(from, message) {
 
             // forward the query around the circle
             } else {
-                var n0 = this.closest_preceding_node(message.id);
-                send(n0.id, message, from);
+                var n0 = this.closet_finger_preceding(message.id);
+                this.send(n0.id, message, from);
 
                 console.log('[Dispatcher] FOUND_SUCCESSOR forward');
             }
