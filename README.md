@@ -52,7 +52,7 @@ server.start({
 
 ## Credits
 
-There are existing Node.js Chord implementation.
+There are existing Node.js Chord implementations. *flowchain-chord* is inspired by these projects.
 
 * [shigasumi/chord-node-js](https://github.com/shigasumi/chord-node-js)
 * [optimizely/chord](https://github.com/optimizely/chord)
