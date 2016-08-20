@@ -50,6 +50,13 @@ server.start({
 
 ## Usage
 
+## Credits
+
+There are existing Node.js Chord implementation.
+
+* [shigasumi/chord-node-js](https://github.com/shigasumi/chord-node-js)
+* [optimizely/chord](https://github.com/optimizely/chord)
+
 ## License
 
 The MIT License (MIT)
