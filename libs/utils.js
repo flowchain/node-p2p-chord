@@ -49,16 +49,18 @@ var Utils = {
 		}
 	},
 
-	nextFinger: function(n, next) {
-	    var result = 1;
+	getNextFingerId: function(n, i, m) {
+		var result = n + Math.pow(2, i - 1);
+		var result = result % Math.pow(2, m);
 
-	    while (next >= 0) {
-	    	result = result * 2;
-	    	next--;
-	    }
+		return result;
+	},
 
-	    return (n + result);
-	}	
+	getFixFingerId: function(n, next) {
+		var result = n + Math.pow(2, next - 1);
+
+		return result;
+	}
 };
 
 if (typeof(module) != "undefined" && typeof(exports) != "undefined")

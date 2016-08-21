@@ -65,7 +65,7 @@ function Node(id, server) {
 
         this.send(this.successor, { 
             type: Chord.FIND_PREDECESSOR, 
-            id: ChordUtils.nextFinger(this.id, this.next_finger),
+            id: ChordUtils.getFixFingerId(this.id, this.next_finger),
             next: this.next_finger
         });
     }.bind(this), 3000);
@@ -145,6 +145,7 @@ Node.prototype.dispatch = function(from, message) {
         case Chord.FOUND_SUCCESSOR:
             if (message.hasOwnProperty('next')) {
                 fingers[message.next] = from;
+                console.log('[receive] FOUND_SUCCESSOR: finger table fixed');
             }
         case Chord.NOTIFY_SUCCESSOR:
             this.successor = from;
@@ -171,7 +172,7 @@ Node.prototype.dispatch = function(from, message) {
             break;
 
         case Chord.MESSAGE:
-            send(this.successor, message, from);
+            this.send(this.successor, message, from);
             break;
         default:
             console.error('Unknown Chord message: ' + message.type);
