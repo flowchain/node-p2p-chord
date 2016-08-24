@@ -80,7 +80,6 @@ var wsHandlers = {
  */
 var Server = function () {
   this.nodes = {};
-  this.last_node = null;
   this.last_node_send = null;
 
   // Create a unique ID for the new node
@@ -90,8 +89,7 @@ var Server = function () {
   var node = new Node(id, this);
 
   this.node = this.nodes[id] = node;
-
-  console.log('[chord] node created');
+  this.last_node = id;  
 };
 
 /**
@@ -104,23 +102,22 @@ Server.prototype.onData = function(payload) {
   // Request URI
   var pathname = payload.pathname;
 
-  //  Application callback
-  if (typeof this._options.onmessage === 'function') {
-    this._options.onmessage(payload);
+  // The message is for me
+  if (typeof this._options.onmessage === 'function' &&
+    packet.to === this.id &&
+    packet.message.type === Node.MESSAGE) {
+    return this._options.onmessage(payload);
   }
 
   /* 
    * Format of 'packet'.
    *
-   *  { message: { type: 2, id: '2e9c3bbeb0827d26dd121d014fa34e73' },
-   *    from: 
-   *     { address: '127.0.0.1',
-   *       port: 8000,
-   *       id: '2e9c3bbeb0827d26dd121d014fa34e73' } }
+   *  { message: { type: 0, id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' },
+   *  from: { id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' } }
    */
 
-  // Get last node ID
-  var to = this.last_node;
+  // Get last node by ID
+  var to = this.nodes[this.last_node];
 
   // Forward the message
   if (packet.to) {
@@ -128,6 +125,7 @@ Server.prototype.onData = function(payload) {
     to = this.nodes[packet.to];
   }
 
+  // Get node instance by ID
   if (to) {
     to.dispatch(packet.from, packet.message);
   }
@@ -163,11 +161,11 @@ Server.prototype.start = function(options) {
 
   // Join existing node, or...
   if (typeof options.join === 'object') {
-    this.last_node = this.node.join(options.join);
+    this.node.join(options.join);
 
   // Create virtual node
   } else {
-    this.last_node = null;
+
   }
 
   server.start(router.route, wsHandlers);
@@ -189,8 +187,8 @@ Server.prototype.sendChordMessage = function(to, message) {
       /* to: <forward-to-node-by-id> */
       message: message,
       from: {
-        address: '127.0.0.1',
-        port: 8000,
+        address: this.host,
+        port: this.port,
         id: message.id
       }   
     };

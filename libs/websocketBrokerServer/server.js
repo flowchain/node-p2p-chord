@@ -108,7 +108,7 @@ WebsocketBroker.prototype.start = function(route, handlers) {
 
 
     route(request.resource, connection, handlers, self.clientsPath);
-    console.info('requested node URI ' + request.resource);
+    //console.info('requested node URI ' + request.resource);
 
     connection.on('message', onWsConnMessage);
     connection.on('close', onWsConnClose);

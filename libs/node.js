@@ -49,6 +49,10 @@ function Node(id, server) {
     this.id = id;
     this.server = server;
 
+    // Each node can keep a finger table containing up to 'm' entries
+    // Default is 0xff (255 entries)
+    this.finger_entries = 0xff;
+
     this.predecessor = null;
     this.successor = { 
         address: '127.0.0.1', 
@@ -59,20 +63,28 @@ function Node(id, server) {
     this.fingers = [];
     this.next_finger = 0;
 
+    console.info('node id = '+ this.id);
+
     // Stabilization - fix fingers
     setInterval(function Stabilize() {
-        this.next_finger = this.next_finger + 1;
+        var next = this.next_finger = this.next_finger + 1;
+
+        if (next > this.finger_entries) {
+            next = 1;
+        }
 
         this.send(this.successor, { 
-            type: Chord.FIND_PREDECESSOR, 
-            id: ChordUtils.getFixFingerId(this.id, this.next_finger),
-            next: this.next_finger
+            type: Chord.FIND_SUCCESSOR, 
+            id: ChordUtils.getFixFingerId(this.id, next - 1),
+            next: next
         });
     }.bind(this), 3000);
 
     setInterval(function Notify() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
     }.bind(this), 3000);
+
+    return this;
 };
 
 /*
@@ -95,7 +107,7 @@ Node.prototype.send = function(key, message, to) {
 };
 
 /*
- * @return {Object}
+ * @return {boolean}
  */
 Node.prototype.join = function(remote) {
     var message = {
@@ -109,13 +121,13 @@ Node.prototype.join = function(remote) {
     // Dispatching
     this.send(remote, message);
 
-    return remote;
+    return true;
 };
 
 /*
  * Return closet finger proceding id
  */
-Node.prototype.closet_finger_preceding = function(id) {
+Node.prototype.closet_finger_preceding = function(find_id) {
     /*
      * for i = m downto 1
      *   if (isInRange(finger[i].node, n, id))
@@ -124,12 +136,13 @@ Node.prototype.closet_finger_preceding = function(id) {
      */
 
     for (var i = this.fingers.length - 1; i >= 0; --i) {
-        if (ChordUtils.isInRange(fingers[i].id, this.id, id)) {
+        if (this.fingers[i] && ChordUtils.isInRange(this.fingers[i].id, this.id, find_id)) {
             return this.fingers[i];
         }
     }
 
-    return this.id;   
+    // self or successor ?
+    return this;   
 };
 
 Node.prototype.dispatch = function(from, message) {
@@ -137,19 +150,20 @@ Node.prototype.dispatch = function(from, message) {
         case Chord.NOTIFY_PREDECESSOR:
             if (this.predecessor === null) {
                 this.predecessor = from;
+                console.info('predecessor = ' + this.predecessor.id);
             }
             this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);
-            console.log('[receive] NOTIFY_PREDECESSOR');
+            console.info('NOTIFY_PREDECESSOR = ' + this.predecessor.id);
             break; 
 
         case Chord.FOUND_SUCCESSOR:
             if (message.hasOwnProperty('next')) {
-                fingers[message.next] = from;
-                console.log('[receive] FOUND_SUCCESSOR: finger table fixed');
+                this.fingers[message.next] = from;
+                console.info('FOUND_SUCCESSOR = finger table fixed');
             }
         case Chord.NOTIFY_SUCCESSOR:
             this.successor = from;
-            console.log('[receive] NOTIFY_SUCCESSOR');
+            console.info('NOTIFY_SUCCESSOR = ' + from.id);
             break;  
 
         case Chord.FIND_SUCCESSOR:
@@ -159,14 +173,14 @@ Node.prototype.dispatch = function(from, message) {
                 message.type = Chord.FOUND_SUCCESSOR;
                 this.send(from, message, this.successor);
 
-                console.log('[Dispatcher] FOUND_SUCCESSOR');
+                console.info('FIND_SUCCESSOR');
 
             // forward the query around the circle
             } else {
                 var n0 = this.closet_finger_preceding(message.id);
                 this.send(n0.id, message, from);
 
-                console.log('[Dispatcher] FOUND_SUCCESSOR forward');
+                console.info('FIND_SUCCESSOR = closet_finger_preceding = ' + n0.id);
             }
 
             break;

@@ -38,6 +38,8 @@ var Utils = {
 	},
 
 	isInRange: function(key, left, right) {
+		//console.log('key = ' + key + ', left = ' + left + ', right = ' + right);
+
 		if (right == left) {
 			return key == right;
 		}
@@ -56,10 +58,24 @@ var Utils = {
 		return result;
 	},
 
-	getFixFingerId: function(n, next) {
-		var result = n + Math.pow(2, next - 1);
+	// The new key equals to key + 2 ^ exponent.
+	getFixFingerId: function(key, exponent) {
+	    var id = [];
+	    var result = key.split('');
+	    var index = result.length - 1;
+	    var carry = Math.pow(2, exponent);
 
-		return result;
+	    while (index >= 0) {
+	        var d = parseInt(result[index], 16) + carry;
+	        carry = 0;
+	        if (d > 0xf) {
+	            d %= 16;
+	            carry = 1;
+	        }
+	        result[index] = d.toString(16);        
+	        --index;
+	    }
+	    return result.join('');
 	}
 };
 
