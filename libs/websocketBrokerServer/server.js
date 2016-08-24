@@ -77,46 +77,6 @@ WebsocketBroker.prototype.onRequest = function(request, response) {
 };
 
 /**
- * Initialize a new `WebsocketBroker` with the given `options`.
- *
- * @param {String} path
- * @param {Object} data
- * @api private
- */
-WebsocketBroker.prototype.dispatchData = function(path, data) {
-  var connections = this.clientsPath[path];
-
-  if (typeof(connections) === 'undefined')
-    return;
-
-  //console.log('Pushing [' + data + '] to ' + path);
-
-  for (var i = 0; i < connections.length; i++) {
-    connections[i].sendUTF(data);
-  }
-};
-
-/**
- * Initialize a new `WebsocketBroker` with the given `options`.
- *
- * @param {Object} request
- * @param {Object} response
- * @api private
- */
-WebsocketBroker.prototype.dispatchStatus = function(path, data) {
-  var connections = this.clientsPath[path];
-
-  if (typeof connections === 'undefined')
-    return;
-
-  //console.log('Pushing [' + data + '] to ' + path);
-
-  for (var i = 0; i < connections.length; i++) {
-    connections[i].sendUTF(data);
-  }
-};
-
-/**
  * Start websocket server.
  *
  * @param {Object} route
@@ -126,33 +86,13 @@ WebsocketBroker.prototype.dispatchStatus = function(path, data) {
 WebsocketBroker.prototype.start = function(route, handlers) {
   var self = this;
 
-  if (cluster.isMaster && process.env['CPUS'] > 1) {
-      // Count the machine's CPUs
-      var cpuCount = process.env['CPUS'];
-
-      //console.info('CPUs: ' + cpuCount);
-
-      // Create a worker on each CPU
-      for (var i = 0; i < cpuCount ; i++) {
-          var port = this.port + i;
-          cluster.fork({
-            HOST: this.host,
-            PORT: port
-          });
-      }
-
-      return true;
-  }
-
   // arguments to child processes
   var port = self.port || process.env['PORT'];
   var host = self.host || process.env['HOST'];
   var endpoint = self.endpoint || process.env['ENDPOINT'];
 
   var server = http.createServer(this.onRequest).listen(port, host, function() {
-      var workerinfo = "";
-      if (cluster.isWorker) workerinfo = " on CPU " + cluster.worker.id;
-      console.info('WoT/WebSocket server is listening at ws://' + self.host + ':' + self.port + workerinfo);
+      console.info('node is running at ws://' + self.host + ':' + self.port);
   });
 
   var wsServer = new WebSocketServer({
@@ -166,44 +106,26 @@ WebsocketBroker.prototype.start = function(route, handlers) {
   var onWsRequest = function(request) {
     var connection = request.accept('', request.origin);
 
-    //console.log("[2]: onWsRequest");
-    console.log("[3]: resource: " + request.resource);
-
-    // put worker object into connection
-    connection.worker = cluster.worker;
 
     route(request.resource, connection, handlers, self.clientsPath);
+    console.info('requested node URI ' + request.resource);
 
     connection.on('message', onWsConnMessage);
     connection.on('close', onWsConnClose);
-
-    if (typeof connection.statusViewer !== 'undefined')
-      self.dispatchStatus(connection.statusViewer, JSON.stringify({ isAlive: true }));
   };
 
   var onWsConnMessage = function(message) {
-    //console.log('onWsConnMessage: ' + this.pathname);
-    //console.log('Received: ' + message.utf8Data);
-
+    // Dispatching request message
     self.emit('data', {
       data: message.utf8Data,
       pathname: this.pathname
     });
-
-    // Is it a sender ? Yes, then push data to all viewers.
-    if (typeof (this.viewer) !== 'undefined')
-      self.dispatchData(this.viewer, message.utf8Data);
-
-    if (typeof (this.statusViewer) !== 'undefined')
-      self.dispatchStatus(this.statusViewer, JSON.stringify({ isAlive: true }));
   };
 
   var onWsConnect = function(webSocketConnection) {
   };
 
   var onWsConnClose = function(reasonCode, description) {
-    if (typeof (this.statusViewer) !== 'undefined')
-        self.dispatchStatus(this.statusViewer, JSON.stringify({ isAlive: false }));
   };
 
   wsServer.on('request', onWsRequest);

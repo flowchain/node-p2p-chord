@@ -89,12 +89,12 @@ WebsocketRouter.prototype.route = function(pathname, connection, wsHandlers, cli
       throw new Error('Path must be specified as either a string or a RegExp.');
     }
 
-    if (typeof handler === "function") {
+    if (typeof handler === 'function') {
       if (pathExp.test(pathname)) {
         wsHandlers[path](pathname, connection, clients);
       }
     } else {
-      console.log("No request handler for this pathname: '" + pathname + "'");
+      console.info('no request handler for ' + pathname);
     }
   }
 }

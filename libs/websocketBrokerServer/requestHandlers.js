@@ -30,9 +30,6 @@
 
 var Handlers = Handlers || {};
 
-if (typeof(module) != "undefined" && typeof(exports) != "undefined")
-  module.exports = Handlers;
-
 // Handlers object
 Handlers = {
   receive: function(pathname, connection, clients) {
@@ -61,47 +58,8 @@ Handlers = {
 
     clients[connection.viewer] = [];
     clients[connection.statusViewer] = [];
-  },
-
-  viewer: function(pathname, connection, clients) {
-    //console.log("Viewer Routed: " + pathname);
-
-    // the original sender pathname
-    connection.pathname = pathname;
-
-    // Save viewer clients (unlimited clients)
-    for (var path in clients) {
-        if (path === pathname) {
-            clients[path].push(connection);
-            return;
-        }
-    }
-
-    /*
-     * Not found. There is not a existing sender.
-     */
-    clients[pathname] = [];
-    clients[pathname].push(connection);
-  },
-
-  status: function(pathname, connection, clients) {
-    //console.log("Status Routed: " + pathname);
-
-    // the original sender pathname
-    connection.pathname = pathname;
-
-    // Save status viewer clients (unlimited clients)
-    for (var path in clients) {
-        if (path === pathname) {
-            clients[path].push(connection);
-            return;
-        }
-    }
-
-    /*
-     * Not found. There is not a existing status viewer.
-     */
-    clients[pathname] = [];
-    clients[pathname].push(connection);
   }
 };
+
+if (typeof(module) != "undefined" && typeof(exports) != "undefined")
+  module.exports = Handlers;

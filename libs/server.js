@@ -70,7 +70,7 @@ var deserialize = JSON.parse;
  * WebSocket URL Router
  */
 var wsHandlers = {
-   "/node/([A-Za-z0-9-]+)/send": RequestHandlers.receive,   
+   "/node/([A-Za-z0-9-]+)/receive": RequestHandlers.receive
 };
 
 /*
@@ -90,6 +90,8 @@ var Server = function () {
   var node = new Node(id, this);
 
   this.node = this.nodes[id] = node;
+
+  console.log('[chord] node created');
 };
 
 /**
@@ -158,15 +160,17 @@ Server.prototype.start = function(options) {
 
   // Start the protocol layer.
   server.on('data', this.onData.bind(this));  
-  server.start(router.route, wsHandlers);
 
   // Join existing node, or...
   if (typeof options.join === 'object') {
-    this.node.join(options.join);
+    this.last_node = this.node.join(options.join);
+
   // Create virtual node
   } else {
-    this.last_node = this.node;
+    this.last_node = null;
   }
+
+  server.start(router.route, wsHandlers);
 };
 
 /**
@@ -196,7 +200,7 @@ Server.prototype.sendChordMessage = function(to, message) {
     }
   });
 
-  var uri = util.format('ws://%s:%s/node/%s/send', to.address, to.port, message.id)
+  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, message.id)
   client.connect(uri, '');
 };
 
