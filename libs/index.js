@@ -31,9 +31,26 @@ var Framework = require('./framework')
   , WebsocketRouter = require("./websocketBrokerServer/router")
   , WebsocketRequestHandlers = require("./websocketBrokerServer/requestHandlers");
 
- module.exports = {
- 	Framework: Framework,
- 	WebsocketBroker: WebsocketBroker,
- 	WebsocketRouter: WebsocketRouter,
- 	WebsocketRequestHandlers: WebsocketRequestHandlers,
- }
+module.exports = {
+	Framework: Framework,
+	WebsocketBroker: WebsocketBroker,
+	WebsocketRouter: WebsocketRouter,
+	WebsocketRequestHandlers: WebsocketRequestHandlers,
+}
+
+
+var fs = require('fs');
+var util = require('util');
+
+var config = JSON.parse( fs.readFileSync('./package.json') );
+
+if (typeof console.info === 'function') {
+	console.info = function(tag, msg) {
+		if (typeof msg === 'undefined') {
+			msg = tag;
+			tag = util.format('[%s %s]', config.name, config.version);
+		}
+		
+		return console.log(tag, msg);
+	}
+}
