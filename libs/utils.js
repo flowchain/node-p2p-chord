@@ -29,6 +29,8 @@
 'use strict';
 
 var Utils = {
+	DebugVerbose: false,
+
 	/*
 	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
 	 */
@@ -87,7 +89,7 @@ var Utils = {
 	        if (d > 0xf) {
 	            carry = d - (d % 16);
 	            carry = carry / 16;
-	            
+
 	            d = d % 16;       
 	        }
 	        result[index] = d.toString(16);        
