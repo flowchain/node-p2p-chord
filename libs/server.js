@@ -105,7 +105,7 @@ var Server = function () {
 Server.prototype.onData = function(payload) {
   // Parse the data received from Chord node (WebSocket client)
   var packet = deserialize(payload.data);
-console.log('onData......')
+
   // Request URI
   var pathname = payload.pathname;
 
@@ -188,13 +188,8 @@ Server.prototype.sendChordMessage = function(to, packet) {
 
   client.on('connect', function(connection) {
     var payload = {
-      to: to.id,
       message: packet.message,
-      from: {
-        address: packet.from.address,
-        port: packet.from.port,
-        id: packet.from.id
-      }   
+      from: packet.from
     };
 
     if (connection.connected) {
@@ -202,12 +197,10 @@ Server.prototype.sendChordMessage = function(to, packet) {
     }
   });
 
-  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, packet.from.id);
+  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, packet.message.id);
 
   if (ChordUtils.DebugVerbose)
     console.info('send to ' + uri);
-
-  this.last_node = to.id;  
 
   client.connect(uri, '');
 };

@@ -59,7 +59,7 @@ function Node(id, server) {
     this.predecessor = null;
 
     // Default successor is self
-    this.successor = { 
+    this._self = this.successor = { 
         address: this.address, 
         port: this.port,
         id: this.id
@@ -93,7 +93,7 @@ function Node(id, server) {
 
     // Stabilize
     setInterval(function stabilize() {
-        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
+        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
     }.bind(this), 300000);
 
     return this;
@@ -106,12 +106,15 @@ function Node(id, server) {
 Node.prototype.send = function(from, message, to) {
     if (typeof to === 'undefined') {
         to = from;
-        from = this;
+        from = this.successor;
     }
 
     var packet = {
-        from: from,
-        to: to.id,
+        from: {
+            address: from.address,
+            port: from.port,
+            id: from.id
+        },
         message: message
     };
 
@@ -134,7 +137,7 @@ Node.prototype.join = function(remote) {
         console.info('try to join ' + JSON.stringify(remote));
 
     // Dispatching
-    this.send(remote, message);
+    this.send(this.successor, message, remote);
 
     return true;
 };
@@ -156,8 +159,11 @@ Node.prototype.closet_finger_preceding = function(find_id) {
         }
     }
 
-    // self or successor ?
-    return this;   
+    if (ChordUtils.isInRange(this.successor.id, this.id, find_id)) {
+        return this.successor;
+    } else {
+        return this._self;
+    }
 };
 
 Node.prototype.dispatch = function(from, message) {
@@ -170,7 +176,7 @@ Node.prototype.dispatch = function(from, message) {
                 if (ChordUtils.DebugNotifyPredecessor)
                     console.info('new predecessor = ' + JSON.stringify(this.predecessor));                
             }
-            this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);
+            this.send(from, { type: Chord.NOTIFY_SUCCESSOR, id: this.id });
 
             if (ChordUtils.DebugNotifyPredecessor)
                 console.info('NOTIFY_PREDECESSOR = ' + this.predecessor.id);
@@ -180,7 +186,11 @@ Node.prototype.dispatch = function(from, message) {
             if (message.hasOwnProperty('next')) {
                 this.fingers[message.next] = from;
                 console.info('FOUND_SUCCESSOR = finger table fixed');
+            } else {
+                this.successor = from;
+                console.info('new successor = ' + from.id);
             }
+            break;
 
         case Chord.NOTIFY_SUCCESSOR:
             /*
@@ -200,7 +210,7 @@ Node.prototype.dispatch = function(from, message) {
             // It is a half closed interval.
             if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
-                this.send(from, message);
+                this.send(this.successor, message, from);
 
                 if (ChordUtils.DebugVerbose)
                     console.info('FIND_SUCCESSOR = message = ' + JSON.stringify(message));
@@ -208,7 +218,7 @@ Node.prototype.dispatch = function(from, message) {
             // forward the query around the circle
             } else {
                 var n0 = this.closet_finger_preceding(message.id);
-                this.send(n0, message);
+                this.send(n0, message, from);
 
                 if (ChordUtils.DebugVerbose)
                     console.info('FIND_SUCCESSOR = closet_finger_preceding = ' + n0.id);

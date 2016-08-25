@@ -29,10 +29,10 @@
 'use strict';
 
 var Utils = {
-	DebugVerbose: false,
+	DebugVerbose: true,
 
 	DebugNodeJoin: true,
-	DebugFixFingers: false,
+	DebugFixFingers: true,
 	DebugNotifyPredecessor: true,
 
 	/*
