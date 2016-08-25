@@ -85,8 +85,10 @@ var Utils = {
 	        var d = parseInt(result[index], 16) + carry;
 	        carry = 0;
 	        if (d > 0xf) {
-	            d %= 16;
-	            carry = 1;
+	            carry = d - (d % 16);
+	            carry = carry / 16;
+	            
+	            d = d % 16;       
 	        }
 	        result[index] = d.toString(16);        
 	        --index;

@@ -50,8 +50,8 @@ function Node(id, server) {
     this.server = server;
 
     // Each node can keep a finger table containing up to 'm' entries
-    // Default is 0xff (255 entries)
-    this.finger_entries = 0xff;
+    // Default is 32 entries
+    this.finger_entries = 32;
 
     this.predecessor = null;
     this.successor = { 
