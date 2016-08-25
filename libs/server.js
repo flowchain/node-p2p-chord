@@ -85,7 +85,12 @@ var Server = function () {
   this.nodes = {};
   this.last_node_send = null;
 
-  // Create a unique ID for the new node
+  /*
+   * Create a unique ID for the new node.
+   * 
+   *  1. The ID of the node can be hashed by IP address.
+   *  2. Hased by URI at this project.
+   */
   var id = ChordUtils.hash(uuid.v4());
 
   // Create a new Chord node with the ID
@@ -107,28 +112,17 @@ Server.prototype.onData = function(payload) {
 
   // The message is for me
   if (typeof this._options.onmessage === 'function' &&
+    packet.to === this.id &&
     packet.message.type === Node.MESSAGE) {
     return this._options.onmessage(payload);
   }
 
   /* 
-   * console.log(packet):
+   * Format of 'packet'.
    *
-   *  {
-   *    "message": {
-   *      "type": 2,
-   *      "id": "6f8d89ca071237d6e7c5cb794e17ecba0e8143fc"
-   *    },
-   *    "from": {
-   *      "address": "localhost",
-   *      "port": "8002",
-   *      "id": "6f8d89ca071237d6e7c5cb794e17ecba0e8143fc"
-   *    }
-   *  }
+   *  { message: { type: 0, id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' },
+   *  from: { id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' } }
    */
-
-  if (ChordUtils.DebugProtocol)
-    console.info('onData = ' + serialize(packet));
 
   // Get last node by ID
   var to = this.nodes[this.last_node];
@@ -139,7 +133,7 @@ Server.prototype.onData = function(payload) {
     to = this.nodes[packet.to];
   }
 
-  // Dispatch this message (receive)
+  // Get node instance by ID
   if (to) {
     to.dispatch(packet.from, packet.message);
   }
@@ -171,7 +165,7 @@ Server.prototype.start = function(options) {
   // Start the protocol layer.
   server.on('data', this.onData.bind(this));  
 
-  // Join existing node, or...
+  // Join existing node
   if (typeof options.join === 'object') {
     this.node.join(options.join);
 
@@ -191,31 +185,29 @@ Server.prototype.start = function(options) {
  * @return {None}
  * @api public
  */
-Server.prototype.sendChordMessage = function(to, message) {
+Server.prototype.sendChordMessage = function(to, packet) {
   var client = new WebSocketClient();
 
   client.on('connect', function(connection) {
     var payload = {
-      message: message,
+      /* to: <forward-to-node-by-id> */
+      message: packet.message,
       from: {
-        address: this.host,
-        port: this.port,
-        id: message.id
+        address: packet.from.address,
+        port: packet.from.port,
+        id: packet.from.id
       }   
     };
 
     if (connection.connected) {
-        if (ChordUtils.DebugProtocol)
-          console.info('in sendChordMessage = send = ' + serialize(payload));
-
-        connection.sendUTF(serialize(payload));
+        connection.sendUTF(JSON.stringify(payload));
     }
-  }.bind(this));
+  });
 
-  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, message.id);
+  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, packet.from.id);
 
-  if (ChordUtils.DebugProtocol)
-    console.info('send to ' + uri)
+  if (ChordUtils.DebugVerbose)
+    console.info('send to ' + uri);
 
   client.connect(uri, '');
 };
