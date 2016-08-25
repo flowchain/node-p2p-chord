@@ -79,6 +79,9 @@ var wsHandlers = {
  * @param {Object} Chord server
  */
 var Server = function () {
+  this.port = process.env.PORT || 8000;
+  this.host = process.env.HOST || 'localhost';
+
   this.nodes = {};
   this.last_node_send = null;
 
@@ -143,9 +146,6 @@ Server.prototype.onData = function(payload) {
  * @api public
  */
 Server.prototype.start = function(options) {
-  this.port = process.env.PORT || 8000;
-  this.host = process.env.HOST || 'localhost';
-
   var options = options || {};
 
   for (var prop in options) {
@@ -185,17 +185,17 @@ Server.prototype.start = function(options) {
  * @return {None}
  * @api public
  */
-Server.prototype.sendChordMessage = function(to, message) {
+Server.prototype.sendChordMessage = function(to, packet) {
   var client = new WebSocketClient();
 
   client.on('connect', function(connection) {
     var payload = {
       /* to: <forward-to-node-by-id> */
-      message: message,
+      message: packet.message,
       from: {
-        address: this.host,
-        port: this.port,
-        id: message.id
+        address: packet.from.address,
+        port: packet.from.port,
+        id: packet.from.id
       }   
     };
 
@@ -204,7 +204,11 @@ Server.prototype.sendChordMessage = function(to, message) {
     }
   });
 
-  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, message.id)
+  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, packet.from.id);
+
+  if (ChordUtils.DebugVerbose)
+    console.info('send to ' + uri);
+
   client.connect(uri, '');
 };
 

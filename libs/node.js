@@ -47,6 +47,9 @@ var Chord = {
 
 function Node(id, server) {
     this.id = id;
+    this.address = server.host;
+    this.port = server.port;
+
     this.server = server;
 
     // Each node can keep a finger table containing up to 'm' entries
@@ -55,8 +58,8 @@ function Node(id, server) {
 
     this.predecessor = null;
     this.successor = { 
-        address: '127.0.0.1', 
-        port: 8000 
+        address: this.address, 
+        port: this.port
     };
 
     // Finger table
@@ -64,9 +67,10 @@ function Node(id, server) {
     this.next_finger = 0;
 
     console.info('node id = '+ this.id);
+    console.info('successor = ' + JSON.stringify(this.successor));
 
-    // Stabilization - fix fingers
-    setInterval(function Stabilize() {
+    // Fix fingers
+    setInterval(function fix_fingers() {
         var next = this.next_finger = this.next_finger + 1;
         var fixFingerId = ChordUtils.getFixFingerId(this.id, next - 1);
 
@@ -80,13 +84,14 @@ function Node(id, server) {
             next: next
         });
 
-        if (ChordUtils.DebugVerbose)
+        if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 3000);
+    }.bind(this), 300000);
 
-    setInterval(function Notify() {
-        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
-    }.bind(this), 3000);
+    // Stabilize
+    setInterval(function stabilize() {
+        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
+    }.bind(this), 1500);
 
     return this;
 };
@@ -95,19 +100,19 @@ function Node(id, server) {
  * @param {Object} { address: '127.0.0.1', port: 8000 }
  * @param {Object} { type: 2, id: 'b283326930a8b2baded20bb1cf5b6358' }
  */
-Node.prototype.send = function(key, message, to) {
+Node.prototype.send = function(from, message, to) {
     if (typeof to === 'undefined') {
-        to = key;
-        return this.server.sendChordMessage(to, message);
+        to = from;
+        from = this;
     }
 
-    var id = ChordUtils.hash(key);
+    var packet = {
+        from: from,
+        to: to.id,
+        message: message
+    };
 
-    this.server.sendChordMessage(to, {
-        type: Chord.MESSAGE,
-        message: message,
-        id: id
-    });
+    return this.server.sendChordMessage(to, packet);
 };
 
 /*
@@ -121,6 +126,9 @@ Node.prototype.join = function(remote) {
 
     // Initialize node's predecessor
     this.predecessor = null;
+
+    if (ChordUtils.DebugNodeJoin)
+        console.info('try to join ' + JSON.stringify(remote));
 
     // Dispatching
     this.send(remote, message);
@@ -155,11 +163,13 @@ Node.prototype.dispatch = function(from, message) {
             if (this.predecessor === null ||
                 ChordUtils.isInRange(from.id, this.predecessor.id, this.id)) {
                 this.predecessor = from;
-                console.info('predecessor = ' + this.predecessor.id);
+
+                if (ChordUtils.DebugNotifyPredecessor)
+                    console.info('new predecessor = ' + JSON.stringify(this.predecessor));                
             }
             this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);
 
-            if (ChordUtils.DebugVerbose)
+            if (ChordUtils.DebugNotifyPredecessor)
                 console.info('NOTIFY_PREDECESSOR = ' + this.predecessor.id);
             break; 
 
@@ -170,7 +180,12 @@ Node.prototype.dispatch = function(from, message) {
             }
 
         case Chord.NOTIFY_SUCCESSOR:
-            if (ChordUtils.isInRange(from.id, this.id, successor.id)) {
+            /*
+             * x = successor.predecessor;
+             * if (x∈(n, successor))
+             *  
+             */        
+            if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 
                 console.info('successor = ' + from.id);
