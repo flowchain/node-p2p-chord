@@ -79,6 +79,9 @@ var wsHandlers = {
  * @param {Object} Chord server
  */
 var Server = function () {
+  this.port = process.env.PORT || 8000;
+  this.host = process.env.HOST || 'localhost';
+
   this.nodes = {};
   this.last_node_send = null;
 
@@ -116,6 +119,9 @@ Server.prototype.onData = function(payload) {
    *  from: { id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' } }
    */
 
+  if (ChordUtils.DebugProtocol)
+    console.info('onData = ' + serialize(packet));
+
   // Get last node by ID
   var to = this.nodes[this.last_node];
 
@@ -138,8 +144,6 @@ Server.prototype.onData = function(payload) {
  * @api public
  */
 Server.prototype.start = function(options) {
-  var port = process.env.PORT || 8000;
-  var host = process.env.HOST || 'localhost';
   var options = options || {};
 
   for (var prop in options) {
@@ -150,8 +154,8 @@ Server.prototype.start = function(options) {
 
   // Prepare to start Websocket server
   var server = new WebsocketBroker({
-    port: port,
-    host: host
+    port: this.port,
+    host: this.host
   });
 
   var router = new WebsocketRouter();
@@ -184,7 +188,6 @@ Server.prototype.sendChordMessage = function(to, message) {
 
   client.on('connect', function(connection) {
     var payload = {
-      /* to: <forward-to-node-by-id> */
       message: message,
       from: {
         address: this.host,
@@ -194,11 +197,18 @@ Server.prototype.sendChordMessage = function(to, message) {
     };
 
     if (connection.connected) {
-        connection.sendUTF(JSON.stringify(payload));
-    }
-  });
+        if (ChordUtils.DebugProtocol)
+          console.info('in sendChordMessage = send = ' + serialize(payload));
 
-  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, message.id)
+        connection.sendUTF(serialize(payload));
+    }
+  }.bind(this));
+
+  var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, message.id);
+
+  if (ChordUtils.DebugProtocol)
+    console.info('send to ' + uri)
+
   client.connect(uri, '');
 };
 
