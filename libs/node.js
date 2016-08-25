@@ -125,7 +125,7 @@ Node.prototype.join = function(remote) {
 };
 
 /*
- * Return closet finger proceding id
+ * Return closet finger proceding ID
  */
 Node.prototype.closet_finger_preceding = function(find_id) {
     /*
@@ -161,15 +161,19 @@ Node.prototype.dispatch = function(from, message) {
                 this.fingers[message.next] = from;
                 console.info('FOUND_SUCCESSOR = finger table fixed');
             }
+
         case Chord.NOTIFY_SUCCESSOR:
-            this.successor = from;
-            console.info('NOTIFY_SUCCESSOR = ' + from.id);
+            if (ChordUtils.isInRange(from.id, this.id, successor.id)) {
+                this.successor = from;
+
+                console.info('successor is now ' + from.id);
+            }
             break;  
 
         case Chord.FIND_SUCCESSOR:
             // Yes, that should be a closing square bracket to match the opening parenthesis.
             // It is a half closed interval.
-            if (ChordUtils.isInRange(message.id, this.id, this.successor.id)) {
+            if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
                 this.send(from, message, this.successor);
 
