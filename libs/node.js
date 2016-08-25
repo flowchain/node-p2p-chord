@@ -71,7 +71,7 @@ function Node(id, server) {
         var fixFingerId = ChordUtils.getFixFingerId(this.id, next - 1);
 
         if (next > this.finger_entries) {
-            next = 1;
+            this.next_finger = 1;
         }
 
         this.send(this.successor, { 
