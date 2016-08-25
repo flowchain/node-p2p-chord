@@ -82,7 +82,12 @@ var Server = function () {
   this.nodes = {};
   this.last_node_send = null;
 
-  // Create a unique ID for the new node
+  /*
+   * Create a unique ID for the new node.
+   * 
+   *  1. The ID of the node can be hashed by IP address.
+   *  2. Hased by URI at this project.
+   */
   var id = ChordUtils.hash(uuid.v4());
 
   // Create a new Chord node with the ID
@@ -138,8 +143,9 @@ Server.prototype.onData = function(payload) {
  * @api public
  */
 Server.prototype.start = function(options) {
-  var port = process.env.PORT || 8000;
-  var host = process.env.HOST || 'localhost';
+  this.port = process.env.PORT || 8000;
+  this.host = process.env.HOST || 'localhost';
+
   var options = options || {};
 
   for (var prop in options) {
@@ -150,8 +156,8 @@ Server.prototype.start = function(options) {
 
   // Prepare to start Websocket server
   var server = new WebsocketBroker({
-    port: port,
-    host: host
+    port: this.port,
+    host: this.host
   });
 
   var router = new WebsocketRouter();
@@ -159,7 +165,7 @@ Server.prototype.start = function(options) {
   // Start the protocol layer.
   server.on('data', this.onData.bind(this));  
 
-  // Join existing node, or...
+  // Join existing node
   if (typeof options.join === 'object') {
     this.node.join(options.join);
 
