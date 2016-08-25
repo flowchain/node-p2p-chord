@@ -29,7 +29,7 @@
 'use strict';
 
 var Utils = {
-	DebugVerbose: true,
+	DebugVerbose: false,
 
 	DebugNodeJoin: true,
 	DebugFixFingers: false,
@@ -48,6 +48,9 @@ var Utils = {
 
 	// key ∈ (n, successor]
 	isInHalfRange: function(key, n, successor) {
+		if (Utils.DebugFixFingers)
+			console.info(key + ' is in [ ' + n + ', ' + successor + ']')
+
 		if (n == successor) {
 			return key == successor;
 		}

@@ -83,7 +83,6 @@ var Server = function () {
   this.host = process.env.HOST || 'localhost';
 
   this.nodes = {};
-  this.last_node_send = null;
 
   /*
    * Create a unique ID for the new node.
@@ -106,13 +105,12 @@ var Server = function () {
 Server.prototype.onData = function(payload) {
   // Parse the data received from Chord node (WebSocket client)
   var packet = deserialize(payload.data);
-
+console.log('onData......')
   // Request URI
   var pathname = payload.pathname;
 
   // The message is for me
   if (typeof this._options.onmessage === 'function' &&
-    packet.to === this.id &&
     packet.message.type === Node.MESSAGE) {
     return this._options.onmessage(payload);
   }
@@ -190,7 +188,7 @@ Server.prototype.sendChordMessage = function(to, packet) {
 
   client.on('connect', function(connection) {
     var payload = {
-      /* to: <forward-to-node-by-id> */
+      to: to.id,
       message: packet.message,
       from: {
         address: packet.from.address,
@@ -208,6 +206,8 @@ Server.prototype.sendChordMessage = function(to, packet) {
 
   if (ChordUtils.DebugVerbose)
     console.info('send to ' + uri);
+
+  this.last_node = to.id;  
 
   client.connect(uri, '');
 };

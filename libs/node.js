@@ -57,9 +57,12 @@ function Node(id, server) {
     this.finger_entries = 32;
 
     this.predecessor = null;
+
+    // Default successor is self
     this.successor = { 
         address: this.address, 
-        port: this.port
+        port: this.port,
+        id: this.id
     };
 
     // Finger table
@@ -91,7 +94,7 @@ function Node(id, server) {
     // Stabilize
     setInterval(function stabilize() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
-    }.bind(this), 1500);
+    }.bind(this), 300000);
 
     return this;
 };
@@ -197,15 +200,15 @@ Node.prototype.dispatch = function(from, message) {
             // It is a half closed interval.
             if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
-                this.send(from, message, this.successor);
+                this.send(from, message);
 
                 if (ChordUtils.DebugVerbose)
-                    console.info('FIND_SUCCESSOR');
+                    console.info('FIND_SUCCESSOR = message = ' + JSON.stringify(message));
 
             // forward the query around the circle
             } else {
                 var n0 = this.closet_finger_preceding(message.id);
-                this.send(n0, message, from);
+                this.send(n0, message);
 
                 if (ChordUtils.DebugVerbose)
                     console.info('FIND_SUCCESSOR = closet_finger_preceding = ' + n0.id);
