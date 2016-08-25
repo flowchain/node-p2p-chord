@@ -29,6 +29,9 @@
 'use strict';
 
 var Utils = {
+	/*
+	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
+	 */
 	hash: function(text) {
 		var data = ('CHORD..++' + text + new Date() + Math.floor(Math.random()*999999));
 		var Crypto = require('crypto');
@@ -45,9 +48,9 @@ var Utils = {
 		}
 
 		if (left < right) {
-			return (key >= left && key <= right);
+			return (key >= left && key < right);
 		} else {
-			return (key >= right && key <= left);
+			return (key >= right && key < left);
 		}
 	},
 
