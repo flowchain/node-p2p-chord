@@ -40,17 +40,30 @@ var Utils = {
 		return key;
 	},
 
-	isInRange: function(key, left, right) {
-		//console.log('key = ' + key + ', left = ' + left + ', right = ' + right);
+	// key ∈ (n, successor]
+	isInHalfRange: function(key, n, successor) {
+		if (n == successor) {
+			return key == successor;
+		}
 
+		if (n < successor) {
+			return (key > n && key <= successor);
+		} else {
+			return (key > successor && key <= n);
+		}
+	},
+
+	// key ∈ (left, right)
+	isInRange: function(key, left, right) {
 		if (right == left) {
 			return key == right;
 		}
 
+		
 		if (left < right) {
-			return (key >= left && key < right);
+			return (key > left && key < right);
 		} else {
-			return (key >= right && key < left);
+			return (key > right && key < left);
 		}
 	},
 
