@@ -107,16 +107,24 @@ Server.prototype.onData = function(payload) {
 
   // The message is for me
   if (typeof this._options.onmessage === 'function' &&
-    packet.to === this.id &&
     packet.message.type === Node.MESSAGE) {
     return this._options.onmessage(payload);
   }
 
   /* 
-   * Format of 'packet'.
+   * console.log(packet):
    *
-   *  { message: { type: 0, id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' },
-   *  from: { id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' } }
+   *  {
+   *    "message": {
+   *      "type": 2,
+   *      "id": "6f8d89ca071237d6e7c5cb794e17ecba0e8143fc"
+   *    },
+   *    "from": {
+   *      "address": "localhost",
+   *      "port": "8002",
+   *      "id": "6f8d89ca071237d6e7c5cb794e17ecba0e8143fc"
+   *    }
+   *  }
    */
 
   if (ChordUtils.DebugProtocol)
@@ -131,7 +139,7 @@ Server.prototype.onData = function(payload) {
     to = this.nodes[packet.to];
   }
 
-  // Get node instance by ID
+  // Dispatch this message (receive)
   if (to) {
     to.dispatch(packet.from, packet.message);
   }
