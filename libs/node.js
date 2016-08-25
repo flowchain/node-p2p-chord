@@ -54,16 +54,20 @@ function Node(id, server) {
     this.finger_entries = 32;
 
     this.predecessor = null;
+
+    // Default successor is self
     this.successor = { 
-        address: '127.0.0.1', 
-        port: 8000 
+        address: this.server.host, 
+        port: this.server.port,
+        id: this.id
     };
 
     // Finger table
     this.fingers = [];
     this.next_finger = 0;
 
-    console.info('node id = '+ this.id);
+    console.info('node id = ' + this.id);
+    console.info('successor = ' + JSON.stringify(this.successor));
 
     // Stabilization - fix fingers
     setInterval(function Stabilize() {
@@ -82,11 +86,11 @@ function Node(id, server) {
 
         if (ChordUtils.DebugVerbose)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 3000);
+    }.bind(this), 1000);
 
     setInterval(function Notify() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
-    }.bind(this), 3000);
+    }.bind(this), 1000);
 
     return this;
 };
@@ -95,19 +99,12 @@ function Node(id, server) {
  * @param {Object} { address: '127.0.0.1', port: 8000 }
  * @param {Object} { type: 2, id: 'b283326930a8b2baded20bb1cf5b6358' }
  */
-Node.prototype.send = function(key, message, to) {
+Node.prototype.send = function(from, message, to) {
     if (typeof to === 'undefined') {
-        to = key;
-        return this.server.sendChordMessage(to, message);
+        to = from;
     }
 
-    var id = ChordUtils.hash(key);
-
-    this.server.sendChordMessage(to, {
-        type: Chord.MESSAGE,
-        message: message,
-        id: id
-    });
+    return this.server.sendChordMessage(to, message);
 };
 
 /*
@@ -146,7 +143,7 @@ Node.prototype.closet_finger_preceding = function(find_id) {
     }
 
     // self or successor ?
-    return this;   
+    return this.successor;
 };
 
 Node.prototype.dispatch = function(from, message) {
@@ -170,7 +167,7 @@ Node.prototype.dispatch = function(from, message) {
             }
 
         case Chord.NOTIFY_SUCCESSOR:
-            if (ChordUtils.isInRange(from.id, this.id, successor.id)) {
+            if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 
                 console.info('successor = ' + from.id);
@@ -187,7 +184,7 @@ Node.prototype.dispatch = function(from, message) {
                 if (ChordUtils.DebugVerbose)
                     console.info('FIND_SUCCESSOR');
 
-            // forward the query around the circle
+            // Forward the query around the circle
             } else {
                 var n0 = this.closet_finger_preceding(message.id);
                 this.send(n0, message, from);
@@ -199,7 +196,13 @@ Node.prototype.dispatch = function(from, message) {
             break;
 
         case Chord.MESSAGE:
-            this.send(this.successor, message, from);
+            if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
+                this.send(this.successor, message, from);
+            } else {
+                var n0 = this.closet_finger_preceding(message.id);
+                this.send(n0, message, from);
+            }
+
             break;
         default:
             console.error('Unknown Chord message: ' + message.type);
