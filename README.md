@@ -50,6 +50,15 @@ server.start({
 
 ## Usage
 
+## History
+
+v0.2: 2016.08.26
+ * Support create, join, stabilize and notify
+
+v0.1: 2016.08.25
+ * Chord node prototype
+ * Chord node over WebSocket server
+
 ## Credits
 
 There are existing Node.js Chord implementations. *flowchain-chord* is inspired by these projects.
