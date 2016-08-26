@@ -1,6 +1,6 @@
-node-p2-chord is an light-weight Node.js implementation of Chord protocol for a peer-to-peer distributed hash table.
+*node-p2-chord* is an light-weight Chord protocol implementation for a peer-to-peer distributed hash table. And it's 100% in Node.js.
 
-# flowchain-chord
+# node-p2p-chord
 
 *flowchain-chord* is a Node.js implementation of Chord peer-to-peer protocol over WebSocket. It is extremely light-weight and aims to help building the P2P IoT networks in more simplicity way.
 
@@ -29,7 +29,7 @@ server.start({
 });
 ```
 
-To create a new node.
+To create a new virtual node.
 
 ```
 var server = require('./libs/server');
@@ -49,6 +49,38 @@ server.start({
 ```
 
 ## Usage
+
+To start a virtual node.
+
+```
+$ export HOST=192.168.0.3		; the IP address for this Chord node to listening to
+$ export PORT=9000			; the port number for this Chord node to listening to
+$ node node0.js				; start the the virtual node
+```
+
+To join a existing node.
+
+```
+$ export HOST=192.168.0.3		; the IP address for this Chord node to listening to
+$ export PORT=9000			; the port number for this Chord node to listening to
+$ node node1.js				; start a Chord node and join the existing node
+```
+
+In ```node1.js```, you must add ```join``` to assign the node to join.
+
+```
+/**
+ * Join an existing node.
+ */
+server.start({
+	onmessage: onmessage,
+	join: { 
+		address: '127.0.0.1', 
+		port: 8001
+	}	
+});
+```
+
 
 ## History
 
