@@ -89,12 +89,12 @@ function Node(id, server) {
 
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 300000);
+    }.bind(this), 300000000);
 
     // Stabilize
     setInterval(function stabilize() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
-    }.bind(this), 300000);
+    }.bind(this), 3000);
 
     return this;
 };
@@ -136,8 +136,10 @@ Node.prototype.join = function(remote) {
     if (ChordUtils.DebugNodeJoin)
         console.info('try to join ' + JSON.stringify(remote));
 
-    // Dispatching
-    this.send(this.successor, message, remote);
+    // Join
+    setInterval(function join() {
+        this.send(remote, message);
+    }.bind(this), 3000);
 
     return true;
 };
@@ -169,17 +171,18 @@ Node.prototype.closet_finger_preceding = function(find_id) {
 Node.prototype.dispatch = function(from, message) {
     switch (message.type) {
         case Chord.NOTIFY_PREDECESSOR:
-            if (this.predecessor === null ||
-                ChordUtils.isInRange(from.id, this.predecessor.id, this.id)) {
+            if (this.predecessor == null 
+                /*
+                 * n'∈(predecessor, n)
+                 */
+                || ChordUtils.isInRange(from.id, this.predecessor.id, this.id)) {
                 this.predecessor = from;
 
                 if (ChordUtils.DebugNotifyPredecessor)
-                    console.info('new predecessor = ' + JSON.stringify(this.predecessor));                
+                    console.info('new predecessor = ' + JSON.stringify(this.predecessor.id));                
             }
-            this.send(from, { type: Chord.NOTIFY_SUCCESSOR, id: this.id });
 
-            if (ChordUtils.DebugNotifyPredecessor)
-                console.info('NOTIFY_PREDECESSOR = ' + this.predecessor.id);
+            this.send(from, { type: Chord.NOTIFY_SUCCESSOR, id: this.id });
             break; 
 
         case Chord.FOUND_SUCCESSOR:
@@ -188,17 +191,19 @@ Node.prototype.dispatch = function(from, message) {
                 console.info('FOUND_SUCCESSOR = finger table fixed');
             } else {
                 this.successor = from;
-                console.info('new successor = ' + from.id);
+                console.info('new successor = ' + this.successor.id);
             }
             break;
 
-        case Chord.NOTIFY_SUCCESSOR:
+        case Chord.NOTIFY_SUCCESSOR:     
             /*
-             * x = successor.predecessor;
-             * if (x∈(n, successor))
-             *  
-             */        
-            if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
+             * n.stabilize()
+             *   x = successor.predecessor;
+             *   if (x∈(n, successor))
+             *     successor = x;
+             *   successor.notify(n);
+             */
+            if (ChordUtils.isInRange(this.predecessor.id, this.id, this.successor.id)) {
                 this.successor = from;
 
                 console.info('successor = ' + from.id);
