@@ -51,30 +51,28 @@ server.start({
 To start a virtual node.
 
 ```
-$ export HOST=192.168.0.3		; the IP address for this Chord node to listening to
-$ export PORT=9000			; the port number for this Chord node to listening to
+$ export HOST=192.168.0.3	; the IP address for this Chord node to listening to
+$ export PORT=8000			; the port number for this Chord node to listening to
 $ node node0.js				; start the the virtual node
 ```
 
 To join a existing node.
 
 ```
-$ export HOST=192.168.0.3		; the IP address for this Chord node to listening to
+$ export HOST=192.168.0.100	; the IP address for this Chord node to listening to
 $ export PORT=9000			; the port number for this Chord node to listening to
 $ node node1.js				; start a Chord node and join the existing node
 ```
 
-In ```node1.js```, you must add ```join``` to assign the node to join.
+In ```node1.js```, you must add ```join``` to join a node.
 
 ```
-/**
- * Join an existing node.
- */
+// to connect to a subsequent node
 server.start({
 	onmessage: onmessage,
 	join: { 
-		address: '127.0.0.1', 
-		port: 8001
+		address: '192.168.0.3', 
+		port: 8000
 	}	
 });
 ```
