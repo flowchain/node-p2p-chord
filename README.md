@@ -2,6 +2,37 @@
 
 This project aims to help building the P2P IoT networks in more simplicity way.
 
+## Usage
+
+To start a virtual node.
+
+```
+$ export HOST=192.168.0.3	; the IP address for this Chord node to listening to
+$ export PORT=8000			; the port number for this Chord node to listening to
+$ node node0.js				; start the the virtual node
+```
+
+To join a existing node.
+
+```
+$ export HOST=192.168.0.100	; the IP address for this Chord node to listening to
+$ export PORT=9000			; the port number for this Chord node to listening to
+$ node node1.js				; start a Chord node and join the existing node
+```
+
+In ```node1.js```, you must add ```join``` to join a node.
+
+```
+// to connect to a subsequent node
+server.start({
+	onmessage: onmessage,
+	join: { 
+		address: '192.168.0.3', 
+		port: 8000
+	}	
+});
+```
+
 ## Quickstart
 
 To create a node and connect to a subsequent node. Add ```join``` as the existing server to connect to.
@@ -45,38 +76,6 @@ server.start({
 	onmessage: onmessage,
 });
 ```
-
-## Usage
-
-To start a virtual node.
-
-```
-$ export HOST=192.168.0.3	; the IP address for this Chord node to listening to
-$ export PORT=8000			; the port number for this Chord node to listening to
-$ node node0.js				; start the the virtual node
-```
-
-To join a existing node.
-
-```
-$ export HOST=192.168.0.100	; the IP address for this Chord node to listening to
-$ export PORT=9000			; the port number for this Chord node to listening to
-$ node node1.js				; start a Chord node and join the existing node
-```
-
-In ```node1.js```, you must add ```join``` to join a node.
-
-```
-// to connect to a subsequent node
-server.start({
-	onmessage: onmessage,
-	join: { 
-		address: '192.168.0.3', 
-		port: 8000
-	}	
-});
-```
-
 
 ## History
 
