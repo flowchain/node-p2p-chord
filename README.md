@@ -1,4 +1,4 @@
-flowchain-chord: An light-weight Node.js implementation of Chord peer-to-peer protocol. 
+node-p2-chord is an light-weight Node.js implementation of Chord protocol for a peer-to-peer distributed hash table.
 
 # flowchain-chord
 
