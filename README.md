@@ -1,4 +1,4 @@
-*node-p2-chord* is a light-weight Chord protocol implementation for a peer-to-peer distributed hash table. And it's 100% in Node.js.
+*node-p2-chord* is a light-weight Chord protocol implementation for a peer-to-peer distributed hash table. It's 100% in Node.js.
 
 # node-p2p-chord
 
