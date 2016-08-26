@@ -183,24 +183,40 @@ Server.prototype.start = function(options) {
  * @return {None}
  * @api public
  */
+var connections = [];
+
 Server.prototype.sendChordMessage = function(to, packet) {
-  var client = new WebSocketClient();
-
-  client.on('connect', function(connection) {
-    var payload = {
-      message: packet.message,
-      from: packet.from
-    };
-
-    if (connection.connected) {
-        connection.sendUTF(JSON.stringify(payload));
-    }
-  });
-
   var uri = util.format('ws://%s:%s/node/%s/receive', to.address, to.port, packet.message.id);
+  var host = util.format('ws://%s:%s', to.address, to.port);
+  var payload = {
+    message: packet.message,
+    from: packet.from
+  };
+  var connection = connections[host] || null;
 
   if (ChordUtils.DebugVerbose)
     console.info('send to ' + uri);
+
+  if (connection) {
+    if (connection.connected) {
+      connection.sendUTF(JSON.stringify(payload));
+    } else {
+      delete connections[host];
+    }
+
+    return 0;
+  }
+
+  var client = new WebSocketClient();
+
+  client.on('connect', function(connection) {
+    if (connection.connected) {
+        connection.sendUTF(JSON.stringify(payload));
+	connections[host] = connection;
+    } else {
+        delete connections[host];
+    }
+  });
 
   client.connect(uri, '');
 };

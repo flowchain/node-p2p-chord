@@ -54,7 +54,7 @@ function Node(id, server) {
 
     // Each node can keep a finger table containing up to 'm' entries
     // Default is 32 entries
-    this.finger_entries = 32;
+    this.finger_entries = 8;
 
     this.predecessor = null;
 
@@ -75,6 +75,7 @@ function Node(id, server) {
     // Fix fingers
     var next = this.next_finger;
     var fixFingerId = '';
+    var successor = this.successor;
 
     setInterval(function fix_fingers() {
         if (next > this.finger_entries) {
@@ -83,7 +84,7 @@ function Node(id, server) {
         fixFingerId = ChordUtils.getFixFingerId(this.id, next);
         next = next + 1;
 
-        this.send(this.successor, { 
+        this.send(successor, { 
             type: Chord.FIND_SUCCESSOR, 
             id: fixFingerId,
             next: next
@@ -91,7 +92,7 @@ function Node(id, server) {
 
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 3000);
+    }.bind(this), 5000);
 
     // Stabilize
     setInterval(function stabilize() {
