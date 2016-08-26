@@ -73,13 +73,15 @@ function Node(id, server) {
     console.info('successor = ' + JSON.stringify(this.successor));
 
     // Fix fingers
-    setInterval(function fix_fingers() {
-        var next = this.next_finger = this.next_finger + 1;
-        var fixFingerId = ChordUtils.getFixFingerId(this.id, next - 1);
+    var next = this.next_finger;
+    var fixFingerId = '';
 
+    setInterval(function fix_fingers() {
         if (next > this.finger_entries) {
-            this.next_finger = 1;
+            next = 0;
         }
+        fixFingerId = ChordUtils.getFixFingerId(this.id, next);
+        next = next + 1;
 
         this.send(this.successor, { 
             type: Chord.FIND_SUCCESSOR, 
@@ -89,12 +91,12 @@ function Node(id, server) {
 
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 300000000);
+    }.bind(this), 3000);
 
     // Stabilize
     setInterval(function stabilize() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
-    }.bind(this), 3000);
+    }.bind(this), 5000);
 
     return this;
 };

@@ -29,11 +29,11 @@
 'use strict';
 
 var Utils = {
-	DebugVerbose: true,
+	DebugVerbose: false,
 
-	DebugNodeJoin: true,
-	DebugFixFingers: true,
-	DebugNotifyPredecessor: true,
+	DebugNodeJoin: false,
+	DebugFixFingers: false,
+	DebugNotifyPredecessor: false,
 
 	/*
 	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
