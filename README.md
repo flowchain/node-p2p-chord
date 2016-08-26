@@ -52,6 +52,9 @@ server.start({
 
 ## History
 
+v0.3: current
+ * Support fix_fingers
+
 v0.2: 2016.08.26
  * Support create, join, stabilize and notify
 
