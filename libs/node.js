@@ -182,7 +182,7 @@ Node.prototype.dispatch = function(from, message) {
                     console.info('new predecessor = ' + JSON.stringify(this.predecessor.id));                
             }
 
-            this.send(from, { type: Chord.NOTIFY_SUCCESSOR, id: this.id });
+            this.send(this.successor, { type: Chord.NOTIFY_SUCCESSOR, id: this.id });
             break; 
 
         case Chord.FOUND_SUCCESSOR:
@@ -203,7 +203,7 @@ Node.prototype.dispatch = function(from, message) {
              *     successor = x;
              *   successor.notify(n);
              */
-            if (ChordUtils.isInRange(this.predecessor.id, this.id, this.successor.id)) {
+            if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 
                 console.info('successor = ' + from.id);
