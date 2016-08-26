@@ -83,7 +83,8 @@ v0.3: current
  * Support fix_fingers
 
 v0.2: 2016.08.26
- * Support create, join, stabilize and notify
+ * Support create and join
+ * Support stabilize and notify
 
 v0.1: 2016.08.25
  * Chord node prototype
@@ -91,7 +92,7 @@ v0.1: 2016.08.25
 
 ## Credits
 
-There are existing Node.js Chord implementations. *flowchain-chord* is inspired by these projects.
+There are existing Node.js Chord implementations. And *node-p2p-chord* is inspired by them.
 
 * [shigasumi/chord-node-js](https://github.com/shigasumi/chord-node-js)
 * [optimizely/chord](https://github.com/optimizely/chord)
