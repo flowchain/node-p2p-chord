@@ -75,7 +75,6 @@ function Node(id, server) {
     // Fix fingers
     var next = this.next_finger;
     var fixFingerId = '';
-    var successor = this.successor;
 
     setInterval(function fix_fingers() {
         if (next > this.finger_entries) {
@@ -84,7 +83,8 @@ function Node(id, server) {
         fixFingerId = ChordUtils.getFixFingerId(this.id, next);
         next = next + 1;
 
-        this.send(successor, { 
+        // Finx sucessor(key)
+        this.send(this.successor, { 
             type: Chord.FIND_SUCCESSOR, 
             id: fixFingerId,
             next: next
@@ -92,7 +92,7 @@ function Node(id, server) {
 
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 5000);
+    }.bind(this), 3000);
 
     // Stabilize
     setInterval(function stabilize() {

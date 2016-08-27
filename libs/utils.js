@@ -29,7 +29,7 @@
 'use strict';
 
 var Utils = {
-	DebugVerbose: false,
+	DebugVerbose: true,
 
 	DebugNodeJoin: false,
 	DebugFixFingers: false,
@@ -51,14 +51,10 @@ var Utils = {
 		if (Utils.DebugFixFingers)
 			console.info(key + ' is in [ ' + n + ', ' + successor + ']')
 
-		if (n == successor) {
-			return key == successor;
-		}
-
 		if (n < successor) {
-			return (key > n && key <= successor);
+			return (key > n && key <= successor) || (n == successor);
 		} else {
-			return (key > successor && key <= n);
+			return (key > successor && key <= n) || (n == successor);
 		}
 	},
 
