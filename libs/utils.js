@@ -29,7 +29,7 @@
 'use strict';
 
 var Utils = {
-	DebugVerbose: true,
+	DebugVerbose: false,
 
 	DebugNodeJoin: false,
 	DebugFixFingers: false,
