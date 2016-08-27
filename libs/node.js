@@ -75,6 +75,7 @@ function Node(id, server) {
     // Fix fingers
     var next = this.next_finger;
     var fixFingerId = '';
+    var successor = this.successor;
 
     setInterval(function fix_fingers() {
         if (next > this.finger_entries) {
@@ -84,7 +85,7 @@ function Node(id, server) {
         next = next + 1;
 
         // Finx sucessor(key)
-        this.send(this.successor, { 
+        this.send(successor, { 
             type: Chord.FIND_SUCCESSOR, 
             id: fixFingerId,
             next: next
@@ -96,8 +97,8 @@ function Node(id, server) {
 
     // Stabilize
     setInterval(function stabilize() {
-        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
-    }.bind(this), 5000);
+        this.send(successor, { type: Chord.NOTIFY_PREDECESSOR, id: this.id });
+    }.bind(this), 3000);
 
     return this;
 };
@@ -196,7 +197,6 @@ Node.prototype.dispatch = function(from, message) {
                 this.successor = from;
                 console.info('new successor = ' + this.successor.id);
             }
-            break;
 
         case Chord.NOTIFY_SUCCESSOR:     
             /*
@@ -218,10 +218,10 @@ Node.prototype.dispatch = function(from, message) {
             // It is a half closed interval.
             if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
-                this.send(this.successor, message, from);
+                this.send(from, message, this);
 
                 if (ChordUtils.DebugVerbose)
-                    console.info('FIND_SUCCESSOR = message = ' + JSON.stringify(message));
+                    console.info('FIND_SUCCESSOR = message = ' + JSON.stringify(from));
 
             // forward the query around the circle
             } else {

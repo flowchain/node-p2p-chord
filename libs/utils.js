@@ -33,7 +33,7 @@ var Utils = {
 
 	DebugNodeJoin: false,
 	DebugFixFingers: false,
-	DebugNotifyPredecessor: false,
+	DebugNotifyPredecessor: true,
 
 	/*
 	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
@@ -54,7 +54,7 @@ var Utils = {
 		if (n < successor) {
 			return (key > n && key <= successor) || (n == successor);
 		} else {
-			return (key > successor && key <= n) || (n == successor);
+			return (key >= successor && key < n) || (n == successor);
 		}
 	},
 
