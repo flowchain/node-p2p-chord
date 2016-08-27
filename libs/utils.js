@@ -35,8 +35,11 @@ var Utils = {
 	DebugFixFingers: false,
 	DebugServer: false,
 
-	/*
+	/**
 	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
+	 *
+	 * @param {String} text
+	 * @return {String}
 	 */
 	hash: function(text) {
 		var data = ('CHORD..++' + text + new Date() + Math.floor(Math.random()*999999));
@@ -46,7 +49,15 @@ var Utils = {
 		return key;
 	},
 
-	// key ∈ (n, successor]
+	/**
+	 * Testing if key ∈ (n, successor]
+	 *
+	 * @param {String} key
+	 * @param {String} n
+	 * @param {String} successor
+	 * @return {Boolean}
+	 * @api private
+	 */
 	isInHalfRange: function(key, n, successor) {
 		if (Utils.DebugFixFingers)
 			console.info(key + ' is in [ ' + n + ', ' + successor + ']')
@@ -58,7 +69,15 @@ var Utils = {
 		}
 	},
 
-	// key ∈ (left, right)
+	/**
+	 * Testing if key ∈ (left, right)
+	 *
+	 * @param {String} key
+	 * @param {String} n
+	 * @param {String} successor
+	 * @return {Boolean}
+	 * @api private
+	 */	
 	isInRange: function(key, left, right) {
 		if (right == left) {
 			return key == right;
@@ -79,7 +98,12 @@ var Utils = {
 		return result;
 	},
 
-	// The new key equals to key + 2 ^ exponent.
+	/**
+	 * The new key equals to key + 2 ^ exponent.
+	 *
+	 * @param {String} key
+	 * @param {Integer} exponent
+	 */
 	getFixFingerId: function(key, exponent) {
 	    var id = [];
 	    var result = key.split('');
