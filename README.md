@@ -79,8 +79,9 @@ server.start({
 
 ## History
 
-v0.3: current
- * Support fix_fingers
+v0.3: 2016.08.27
+ * Support refreshing finger table entries
+ * Support verifying successor's consistency
 
 v0.2: 2016.08.26
  * Support create and join
