@@ -188,6 +188,10 @@ Node.prototype.dispatch = function(from, message) {
                 }
             }
 
+            if (ChordUtils.DebugNotifyPredecessor) {
+                console.info('predecessor = ' + JSON.stringify(this.predecessor.id));      
+            }
+
             this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);
             break; 
 
@@ -228,7 +232,7 @@ Node.prototype.dispatch = function(from, message) {
             // forward the query around the circle
             } else {
                 var n0 = this.closet_finger_preceding(message.id);
-                this.send(n0, message, from);
+                this.send(from, message, n0);
 
                 if (ChordUtils.DebugVerbose)
                     console.info('FIND_SUCCESSOR = closet_finger_preceding = ' + n0.id);
