@@ -183,13 +183,11 @@ Node.prototype.dispatch = function(from, message) {
                 || ChordUtils.isInRange(from.id, this.predecessor.id, this.id)) {
                 this.predecessor = from;
 
-                if (ChordUtils.DebugNotifyPredecessor) {
-                    console.info('new predecessor = ' + JSON.stringify(this.predecessor.id));                
-                }
+                console.info('new predecessor = ' + this.predecessor.id);
             }
 
-            if (ChordUtils.DebugNotifyPredecessor) {
-                console.info('predecessor = ' + JSON.stringify(this.predecessor.id));      
+            if (ChordUtils.DebugVerbose) {
+                console.info('predecessor = ' + this.predecessor.id);
             }
 
             this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);

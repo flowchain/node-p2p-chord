@@ -194,7 +194,7 @@ Server.prototype.sendChordMessage = function(to, packet) {
   };
   var connection = connections[host] || null;
 
-  if (ChordUtils.DebugVerbose)
+  if (ChordUtils.DebugServer)
     console.info('send to ' + uri);
 
   if (connection) {

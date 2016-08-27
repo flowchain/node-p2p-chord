@@ -79,6 +79,9 @@ server.start({
 
 ## History
 
+v0.4: current
+ * Add unit tests
+
 v0.3: 2016.08.27
  * Support refreshing finger table entries
  * Support verifying successor's consistency
