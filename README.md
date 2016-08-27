@@ -1,4 +1,12 @@
-*node-p2-chord* is a light-weight Chord protocol implementation for a peer-to-peer distributed hash table over WebSocket. It's 100% in Node.js.
+![](https://raw.githubusercontent.com/flowchain/flowchain.github.io/master/images/logo-text%40128.png)
+
+Chord protocol and algorithm for a peer-to-peer distributed hash table (DHT).
+
+## node-p2p-chord
+
+[![](https://travis-ci.org/jollen/node-p2p-chord.svg?branch=master)](https://travis-ci.org/jollen/node-p2p-chord.svg?branch=master)
+
+*node-p2-chord* is a light-weight Chord protocol implementation in Node.js for a peer-to-peer distributed hash table over WebSocket. It's a side project of [flowchain](https://github.com/flowchain).
 
 This project aims to help building the P2P IoT networks in more simplicity way.
 
