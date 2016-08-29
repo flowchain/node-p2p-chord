@@ -128,8 +128,6 @@ function Node(id, server) {
         var successor = this.successor
         this.send(successor, { type: Chord.NOTIFY_PREDECESSOR });
     }.bind(this), 3000);
-
-    return this;
 };
 
 /*

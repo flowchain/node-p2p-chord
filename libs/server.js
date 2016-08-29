@@ -100,8 +100,6 @@ function Server() {
 
   this.node = this.nodes[id] = node;
   this.last_node = id;
-
-  return this;
 };
 
 /**
