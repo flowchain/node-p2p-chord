@@ -12,7 +12,7 @@ var onmessage = function(payload) {
 server.start({
 	onmessage: onmessage,
 	join: { 
-		address: '127.0.0.1', 
+		address: '192.168.0.101', 
 		port: 8000
 	}	
 });
