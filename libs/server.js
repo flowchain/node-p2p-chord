@@ -29,9 +29,9 @@
 'use strict';
 
 /**
- * Server Framework
+ * Web of Things Framework
  */
-var Serv = require('./index');
+var WoT = require('./index');
 
 /**
  * Chord Node Class
@@ -46,10 +46,10 @@ var ChordUtils = require('./utils');
 /**
  * Server Modules
  */
-var Framework = Serv.Framework
-  , WebsocketBroker = Serv.WebsocketBroker
-  , WebsocketRouter = Serv.WebsocketRouter
-  , RequestHandlers = Serv.WebsocketRequestHandlers;
+var Framework = WoT.Framework
+  , WebsocketBroker = WoT.WebsocketBroker
+  , WebsocketRouter = WoT.WebsocketRouter
+  , RequestHandlers = WoT.WebsocketRequestHandlers;
 
 /**
  * Util Modules
