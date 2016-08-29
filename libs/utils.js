@@ -32,8 +32,10 @@ var Utils = {
 	DebugVerbose: false,
 
 	DebugNodeJoin: false,
-	DebugFixFingers: false,
-	DebugServer: false,
+	DebugFixFingers: true,
+	DebugServer: true,
+	DebugSuccessor: true,
+	DebugPredecessor: true,
 
 	/**
 	 * Generate a hash key by SHA1. The key is used as identifier (ID) of each node.
@@ -50,6 +52,26 @@ var Utils = {
 	},
 
 	/**
+	 * Generate a test ID. The key is in [1, 9999] with the length of 4 bytes.
+	 *
+	 * @param {String} text
+	 * @return {String}
+	 */
+	hashTestId: function(n) {
+		if (n)
+			return n;
+
+		var data = (Math.floor(Math.random()*9999) + 1).toString();
+		var length = data.split('').length - 4;
+
+		// Left pads
+		while (length++ < 0)
+			data = '0' + data;
+
+		return data;
+	},
+
+	/**
 	 * Testing if key ∈ (n, successor]
 	 *
 	 * @param {String} key
@@ -59,8 +81,8 @@ var Utils = {
 	 * @api private
 	 */
 	isInHalfRange: function(key, n, successor) {
-		if (Utils.DebugFixFingers)
-			console.info(key + ' is in [ ' + n + ', ' + successor + ']')
+		if (Utils.DebugSuccessor)
+			console.info(key + ' isInHalfRange [ ' + n + ', ' + successor + ']')
 
 		if (n < successor) {
 			return (key > n && key <= successor) || (n == successor);
@@ -79,6 +101,9 @@ var Utils = {
 	 * @api private
 	 */	
 	isInRange: function(key, left, right) {
+		if (Utils.DebugFixFingers)
+			console.info(key + ' isInRange [ ' + left + ', ' + right + ']')
+
 		if (right == left) {
 			return key == right;
 		}

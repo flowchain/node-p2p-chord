@@ -29,6 +29,7 @@
 'use strict';
 
 var ChordUtils = require('./utils');
+require('console.table');
 
 /*
  * Export 'Node' class
@@ -65,8 +66,10 @@ function Node(id, server) {
         id: this.id
     };
 
-    // Finger table
+    // Initialize finger table
     this.fingers = [];
+    this.fingers.length = 0;
+
     this.next_finger = 0;
 
     console.info('node id = '+ this.id);
@@ -76,27 +79,54 @@ function Node(id, server) {
     var next = this.next_finger;
     var fixFingerId = '';
 
+    // Print finger table entries
+    if (ChordUtils.DebugFixFingers) {    
+        var dataset = [];
+    }   
+
     setInterval(function fix_fingers() {
-        if (next > this.finger_entries) {
+        var successor = this.successor;
+        var fingers = this.fingers;
+
+        if (next >= this.finger_entries) {
             next = 0;
         }
         fixFingerId = ChordUtils.getFixFingerId(this.id, next);
-        next = next + 1;
 
-        // Finx sucessor(key)
-        this.send(this.successor, { 
+        // n.fix_fingers()
+        this.send(successor, { 
             type: Chord.FIND_SUCCESSOR, 
             id: fixFingerId,
             next: next
         });
 
+        next = next + 1;
+
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
-    }.bind(this), 3000);
+
+        // Print finger table entries
+        if (ChordUtils.DebugFixFingers) {
+            dataset = [];
+
+            console.info('finger table length = '+ fingers.length);
+
+            for (var i = fingers.length - 1; i >= 0; --i) {
+                if (!fingers[i]) continue;
+
+                dataset.push({
+                    start: fingers[i].start,                
+                    successor: fingers[i].successor.id
+                });
+            }
+            console.table(dataset);
+        }
+    }.bind(this), 5000);
 
     // Stabilize
     setInterval(function stabilize() {
-        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
+        var successor = this.successor
+        this.send(successor, { type: Chord.NOTIFY_PREDECESSOR });
     }.bind(this), 3000);
 
     return this;
@@ -133,8 +163,7 @@ Node.prototype.send = function(from, message, to) {
  */
 Node.prototype.join = function(remote) {
     var message = {
-        type: Chord.FIND_SUCCESSOR, 
-        id: this.id
+        type: Chord.FIND_SUCCESSOR
     };
 
     // Initialize node's predecessor
@@ -154,15 +183,15 @@ Node.prototype.join = function(remote) {
  */
 Node.prototype.closet_finger_preceding = function(find_id) {
     /*
-     * for i = m downto 1
-     *   if (isInRange(finger[i].node, n, id))
-     *      return finger[i].node;
-     * return n;
+     * n.closest_preceding_node(id)
+     *   for i = m downto 1
+     *     if (finger[i]∈(n,id))
+     *       return finger[i];
+     *   return n;
      */
-
     for (var i = this.fingers.length - 1; i >= 0; --i) {
-        if (this.fingers[i] && ChordUtils.isInRange(this.fingers[i].id, this.id, find_id)) {
-            return this.fingers[i];
+        if (this.fingers[i] && ChordUtils.isInRange(this.fingers[i].successor.id, this.id, find_id)) {
+            return this.fingers[i].successor;
         }
     }
 
@@ -186,16 +215,19 @@ Node.prototype.dispatch = function(from, message) {
                 console.info('new predecessor = ' + this.predecessor.id);
             }
 
-            if (ChordUtils.DebugVerbose) {
+            if (ChordUtils.DebugPredecessor) {
                 console.info('predecessor = ' + this.predecessor.id);
             }
 
-            this.send(from, { type: Chord.NOTIFY_SUCCESSOR }, this.predecessor);
+            this.send(this.predecessor, { type: Chord.NOTIFY_SUCCESSOR }, from);
             break; 
 
         case Chord.FOUND_SUCCESSOR:
             if (message.hasOwnProperty('next')) {
-                this.fingers[message.next] = from;
+                this.fingers[message.next] = {
+                    successor: from,
+                    start: message.id
+                };
                 console.info('FOUND_SUCCESSOR = finger table fixed');
             } else {
                 this.successor = from;
@@ -222,9 +254,10 @@ Node.prototype.dispatch = function(from, message) {
             // It is a half closed interval.
             if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
+                //this.send(this.successor, message, from);
                 this.send(from, message, this);
 
-                if (ChordUtils.DebugVerbose)
+                if (ChordUtils.DebugSuccessor)
                     console.info('FIND_SUCCESSOR = message = ' + JSON.stringify(from));
 
             // forward the query around the circle
@@ -232,7 +265,7 @@ Node.prototype.dispatch = function(from, message) {
                 var n0 = this.closet_finger_preceding(message.id);
                 this.send(from, message, n0);
 
-                if (ChordUtils.DebugVerbose)
+                if (ChordUtils.DebugSuccessor)
                     console.info('FIND_SUCCESSOR = closet_finger_preceding = ' + n0.id);
             }
 

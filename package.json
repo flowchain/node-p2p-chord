@@ -20,6 +20,7 @@
     "bluebird": "^3.3.3",
     "coap": "^0.10.3",
     "codecov": "^1.0.1",
+    "console.table": "^0.7.0",
     "underscore": "^1.8.3",
     "util": "^0.10.3",
     "utils-merge": "^1.0.0",

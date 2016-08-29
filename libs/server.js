@@ -31,7 +31,7 @@
 /**
  * Server Framework
  */
-var Server = require('./index');
+var Serv = require('./index');
 
 /**
  * Chord Node Class
@@ -46,10 +46,10 @@ var ChordUtils = require('./utils');
 /**
  * Server Modules
  */
-var Framework = Server.Framework
-  , WebsocketBroker = Server.WebsocketBroker
-  , WebsocketRouter = Server.WebsocketRouter
-  , RequestHandlers = Server.WebsocketRequestHandlers;
+var Framework = Serv.Framework
+  , WebsocketBroker = Serv.WebsocketBroker
+  , WebsocketRouter = Serv.WebsocketRouter
+  , RequestHandlers = Serv.WebsocketRequestHandlers;
 
 /**
  * Util Modules
@@ -78,7 +78,7 @@ var wsHandlers = {
  *
  * @param {Object} Chord server
  */
-var Server = function () {
+function Server() {
   this.port = process.env.PORT || 8000;
   this.host = process.env.HOST || 'localhost';
 
@@ -90,13 +90,18 @@ var Server = function () {
    *  1. The ID of the node can be hashed by IP address.
    *  2. Hased by URI at this project.
    */
-  var id = ChordUtils.hash(uuid.v4());
+  if (process.env.ENV === 'development')
+    var id = ChordUtils.hashTestId(process.env.ID);
+  else
+    var id = ChordUtils.hash(uuid.v4());
 
   // Create a new Chord node with the ID
   var node = new Node(id, this);
 
   this.node = this.nodes[id] = node;
-  this.last_node = id;  
+  this.last_node = id;
+
+  return this;
 };
 
 /**
@@ -211,10 +216,10 @@ Server.prototype.sendChordMessage = function(to, packet) {
 
   client.on('connect', function(connection) {
     if (connection.connected) {
-        connection.sendUTF(JSON.stringify(payload));
-	connections[host] = connection;
+      connection.sendUTF(JSON.stringify(payload));
+      connections[host] = connection;
     } else {
-        delete connections[host];
+      delete connections[host];
     }
   });
 
