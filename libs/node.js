@@ -75,18 +75,21 @@ function Node(id, server) {
     console.info('node id = '+ this.id);
     console.info('successor = ' + JSON.stringify(this.successor));
 
-    // Fix fingers
-    var next = this.next_finger;
-    var fixFingerId = '';
+    // Stabilize
+    setInterval(function stabilize() {
+        this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
+    }.bind(this), 3000);
+};
 
-    // Print finger table entries
-    if (ChordUtils.DebugFixFingers) {    
-        var dataset = [];
-    }   
-
-    setInterval(function fix_fingers() {
+/*
+ * Fix finger table entries.
+ */
+Node.prototype.startUpdateFingers = function() {
+    var fix_fingers = function() {
+        var next = this.next_finger;
         var successor = this.successor;
         var fingers = this.fingers;
+        var fixFingerId = '';
 
         if (next >= this.finger_entries) {
             next = 0;
@@ -100,14 +103,14 @@ function Node(id, server) {
             next: next
         });
 
-        next = next + 1;
+        this.next_finger = next + 1;
 
         if (ChordUtils.DebugFixFingers)
             console.info('getFixFingerId = ' + fixFingerId);
 
         // Print finger table entries
         if (ChordUtils.DebugFixFingers) {
-            dataset = [];
+            var dataset = [];
 
             console.info('finger table length = '+ fingers.length);
 
@@ -115,20 +118,17 @@ function Node(id, server) {
                 if (!fingers[i]) continue;
 
                 dataset.push({
+                    next: i,
                     start: fingers[i].start,                
                     successor: fingers[i].successor.id
                 });
             }
             console.table(dataset);
         }
-    }.bind(this), 5000);
+    };
 
-    // Stabilize
-    setInterval(function stabilize() {
-        var successor = this.successor
-        this.send(successor, { type: Chord.NOTIFY_PREDECESSOR });
-    }.bind(this), 3000);
-};
+    setInterval(fix_fingers.bind(this), 3500);
+}
 
 /*
  * @param {Object} { address: '127.0.0.1', port: 8000 }
@@ -252,7 +252,6 @@ Node.prototype.dispatch = function(from, message) {
             // It is a half closed interval.
             if (ChordUtils.isInHalfRange(message.id, this.id, this.successor.id)) {
                 message.type = Chord.FOUND_SUCCESSOR;
-                //this.send(this.successor, message, from);
                 this.send(from, message, this);
 
                 if (ChordUtils.DebugSuccessor)

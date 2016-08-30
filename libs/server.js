@@ -98,6 +98,7 @@ function Server() {
   // Create a new Chord node with the ID
   var node = new Node(id, this);
 
+  // The Node instances
   this.node = this.nodes[id] = node;
   this.last_node = id;
 };
@@ -125,7 +126,7 @@ Server.prototype.onData = function(payload) {
    *  from: { id: '77c44c4f7bd4044129babdf235d943ff25a1d5f0' } }
    */
 
-  // Get last node by ID
+  // Get last node's instance by ID
   var to = this.nodes[this.last_node];
 
   // Forward the message
@@ -169,10 +170,11 @@ Server.prototype.start = function(options) {
   // Join existing node
   if (typeof options.join === 'object') {
     this.node.join(options.join);
+    this.node.startUpdateFingers();
 
   // Create virtual node
   } else {
-
+    this.node.startUpdateFingers();
   }
 
   server.start(router.route, wsHandlers);
