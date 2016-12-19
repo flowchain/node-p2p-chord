@@ -13,6 +13,6 @@ server.start({
 	onmessage: onmessage,
 	join: { 
 		address: '127.0.0.1', 
-		port: 8001
+		port: 8000
 	}	
 });
