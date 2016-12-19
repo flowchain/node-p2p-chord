@@ -83,8 +83,12 @@ server.start({
 
 ## History
 
-v0.4: current
- * Add unit tests
+v0.4: 2016.12.19
+ * Major bug fixed
+  * FOUND_SUCCESSOR bugs
+  * NOTIFY_SUCCESSOR bugs
+ * Improve startUpdateFingers()
+ * Add a new ```NOTIFY_JOIN``` RPC message
 
 v0.3: 2016.08.27
  * Support refreshing finger table entries
