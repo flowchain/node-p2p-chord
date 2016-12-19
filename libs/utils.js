@@ -85,9 +85,9 @@ var Utils = {
 			console.info(key + ' isInHalfRange [ ' + n + ', ' + successor + ']')
 
 		if (n < successor) {
-			return (key > n && key <= successor) || (n == successor);
+			return (key > n && key <= successor) || (n === successor);
 		} else {
-			return (key >= successor && key < n) || (n == successor);
+			return (key > successor && key <= n) || (n === successor);
 		}
 	},
 
@@ -103,16 +103,11 @@ var Utils = {
 	isInRange: function(key, left, right) {
 		if (Utils.DebugFixFingers)
 			console.info(key + ' isInRange [ ' + left + ', ' + right + ']')
-
-		if (right == left) {
-			return key == right;
-		}
-
 		
 		if (left < right) {
-			return (key > left && key < right);
+			return (key > left && key < right) || (left === right && key !== left);
 		} else {
-			return (key > right && key < left);
+			return (key > right && key < left) || (left === right && key !== left);
 		}
 	},
 
