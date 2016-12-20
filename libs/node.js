@@ -2,9 +2,9 @@
  *
  * The MIT License (MIT)
  *
- * https://github.com/flowchain
+ * https://www.flowchain.co
  * 
- * Copyright (c) 2016 Jollen
+ * Copyright (c) 2016-present Jollen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -219,7 +219,7 @@ Node.prototype.dispatch = function(_from, _message) {
             }
             
             message.type = Chord.NOTIFY_SUCCESSOR;
-            
+
             this.send(this.predecessor, message, from);
 
             break; 
@@ -236,7 +236,7 @@ Node.prototype.dispatch = function(_from, _message) {
             if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 
-                console.info('NOTIFY_SUCCESSOR: new successor is now = ' + JSON.stringify(message.from));
+                console.info('NOTIFY_SUCCESSOR: new successor is now = ' + this.successor.id);
             }
 
             break; 

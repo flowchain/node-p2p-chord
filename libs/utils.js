@@ -2,9 +2,9 @@
  *
  * The MIT License (MIT)
  *
- * https://github.com/flowchain
+ * https://www.flowchain.co
  * 
- * Copyright (c) 2016 Jollen
+ * Copyright (c) 2016-present Jollen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
