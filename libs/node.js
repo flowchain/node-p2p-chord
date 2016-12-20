@@ -218,14 +218,8 @@ Node.prototype.dispatch = function(_from, _message) {
                 console.info('new predecessor is now = ' + this.predecessor.id);
             }
             
-            // N26 runs stabilize()
-            //  from = N32, this = N32, predecessor = N32  
-            //          
-            //  from = N26, this = N32, predecessor = N26
             message.type = Chord.NOTIFY_SUCCESSOR;
-
-            console.log('from = ' + from.id + ', this = ' + this.id + ', predecessor = ' + this.predecessor.id);
-
+            
             this.send(this.predecessor, message, from);
 
             break; 
@@ -239,7 +233,6 @@ Node.prototype.dispatch = function(_from, _message) {
              *      successor = x;
              *    successor.notify(n);
              */       
-            // from = N
             if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 

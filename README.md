@@ -83,6 +83,10 @@ server.start({
 
 ## History
 
+v0.5: current
+ * Support full stabilization
+ * Major bug fixed: #0ee56e413a8c8bab68da282a445f5705fc34305b, c7db7fdfc731c6f103f955b763c1f80862ff66c8
+
 v0.4: 2016.12.19
  * Major bug fixed
   * FOUND_SUCCESSOR bugs
