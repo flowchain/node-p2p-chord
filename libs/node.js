@@ -127,9 +127,9 @@ Node.prototype.startUpdateFingers = function() {
     // Stabilize
     setInterval(function stabilize() {
         this.send(this.successor, { type: Chord.NOTIFY_PREDECESSOR });
-    }.bind(this), 2000).unref();
+    }.bind(this), 2500).unref();
 
-    setInterval(fix_fingers.bind(this), 3000).unref();
+    setInterval(fix_fingers.bind(this), 2000).unref();
 }
 
 /*
@@ -215,10 +215,18 @@ Node.prototype.dispatch = function(_from, _message) {
                 || ChordUtils.isInRange(from.id, this.predecessor.id, this.id)) {
                 this.predecessor = from;
 
-                console.info('new predecessor is now = ' + this.predecessor.id);                
+                console.info('new predecessor is now = ' + this.predecessor.id);
             }
+            
+            // N26 runs stabilize()
+            //  from = N32, this = N32, predecessor = N32  
+            //          
+            //  from = N26, this = N32, predecessor = N26
+            message.type = Chord.NOTIFY_SUCCESSOR;
 
-            this.send(this, { type: Chord.NOTIFY_SUCCESSOR }, from);
+            console.log('from = ' + from.id + ', this = ' + this.id + ', predecessor = ' + this.predecessor.id);
+
+            this.send(this.predecessor, message, from);
 
             break; 
 
@@ -229,11 +237,13 @@ Node.prototype.dispatch = function(_from, _message) {
              *    x = successor.predecessor;
              *    if (x∈(n, successor))
              *      successor = x;
+             *    successor.notify(n);
              */       
+            // from = N
             if (ChordUtils.isInRange(from.id, this.id, this.successor.id)) {
                 this.successor = from;
 
-                console.info('NOTIFY_SUCCESSOR: new successor is now = ' + this.successor.id);                                
+                console.info('NOTIFY_SUCCESSOR: new successor is now = ' + JSON.stringify(message.from));
             }
 
             break; 
