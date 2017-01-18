@@ -14,7 +14,7 @@ $ export PORT=8000			; the port number for this Chord node to listening to
 $ node node0.js				; start the the virtual node
 ```
 
-To join a existing node.
+To connect a subsequent node in order to join the existing p2p network.
 
 ```
 $ export HOST=192.168.0.100	; the IP address for this Chord node to listening to
@@ -22,7 +22,7 @@ $ export PORT=9000			; the port number for this Chord node to listening to
 $ node node1.js				; start a Chord node and join the existing node
 ```
 
-In ```node1.js```, you must add ```join``` to join a node.
+In the ```node1.js``` file that you have to add ```join``` property for the connecting node.
 
 ```
 // to connect to a subsequent node
@@ -37,7 +37,7 @@ server.start({
 
 ## Quickstart
 
-To create a node and connect to a subsequent node. Add ```join``` as the existing server to connect to.
+To create a node and connect to a subsequent node. Add the ```join``` property to specify the existing p2p node.
 
 ```
 var server = require('./libs/server');
