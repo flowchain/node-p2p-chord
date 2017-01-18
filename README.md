@@ -83,7 +83,7 @@ server.start({
 
 v0.5: current
  * Support full stabilization
- * Major bug fixed: #0ee56e413a8c8bab68da282a445f5705fc34305b, c7db7fdfc731c6f103f955b763c1f80862ff66c8
+ * Major bug fixed: [#0ee56e413a8c8bab68da282a445f5705fc34305b], [#c7db7fdfc731c6f103f955b763c1f80862ff66c8]
 
 v0.4: 2016.12.19
  * Major bug fixed
@@ -106,7 +106,7 @@ v0.1: 2016.08.25
 
 ## Credits
 
-There are existing Node.js Chord implementations. And *node-p2p-chord* is inspired by them.
+There are existing Chord node.js implementations, and the *node-p2p-chord* is inspired by them.
 
 * [shigasumi/chord-node-js](https://github.com/shigasumi/chord-node-js)
 * [optimizely/chord](https://github.com/optimizely/chord)
