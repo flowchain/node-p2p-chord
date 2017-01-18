@@ -2,9 +2,7 @@
 
 [![](https://travis-ci.org/jollen/node-p2p-chord.svg?branch=master)](https://travis-ci.org/jollen/node-p2p-chord)
 
-*node-p2p-chord* is a light-weight Chord protocol and algorithm implementation in Node.js for a peer-to-peer distributed hash table over WebSocket. It's a side project of [flowchain](https://github.com/flowchain).
-
-This project aims to help building the P2P IoT networks in more simplicity way.
+*node-p2p-chord* is a light weight Chord protocol and algorithm library in JavaScript for a peer-to-peer distributed hash table (DHT). It is a sub-project of [WoT.City](https://wotcity.com) and the underlying component of [WoT.City](https://wotcity.com) software framework. The technical details can be found at [WoT.City white paper](https://wotcity.com/WoTCity-WhitePaper.pdf).
 
 ## Usage
 
